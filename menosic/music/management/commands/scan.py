@@ -11,7 +11,7 @@ def tag(m, tag):
         if len(m.get(tag)) == 1:
             return m.get(tag)[0]
         else: 
-            print("artist: %s, album: %s, tag: %s, value: %s" % (m.get('artist'), m.get('album'), tag, m.get(tag)))
+            print("found more than 1 item, using first one.. artist: %s, album: %s, tag: %s, value: %s" % (m.get('artist'), m.get('album'), tag, m.get(tag)))
             return m.get(tag)[0]
 
 def number(string):
@@ -45,7 +45,7 @@ def _artists(m, names, sortnames=None, musicbrainz_artistids=None, paths=None):
                 )
             artist.save()
 
-        artist.genres.add(*list(genres(m)))
+        artist.genres.add(*genres(m))
         yield artist
 
 def artists(m):
@@ -57,7 +57,7 @@ def artists(m):
 
 def albumartists(m):
     return _artists(m,
-            m.get('albumartist') or m.get('artist'),
+            m.get('albumartist') or m.get('performer') or m.get('artist'),
             m.get('albumartistsort') or m.get('artistsort'),
             m.get('musicbrainz_albumartistid') or m.get('musicbrainz_artistid'),
             None)
@@ -89,7 +89,6 @@ def album(m):
         _album = models.Album(
                 name = tag(m, 'album'),
                 date = tag(m, 'date'),
-                discnumber = number(tag(m, 'discnumber')),
                 #albumtype = tag(m, 'albumtype'),
                 country = country(tag(m, 'country')),
 
@@ -98,11 +97,11 @@ def album(m):
             )
         _album.save()
 
-    _album.artists.add(*list(albumartists(m)))
-    _album.genres.add(*list(genres(m)))
-    _album.labels.add(*list(labels(m)))
-    _album.albumtypes.add(*list(albumtypes(m)))
-    _album.albumstatus.add(*list(albumstatus(m)))
+    _album.artists.add(*albumartists(m))
+    _album.genres.add(*genres(m))
+    _album.labels.add(*labels(m))
+    _album.albumtypes.add(*albumtypes(m))
+    _album.albumstatus.add(*albumstatus(m))
     return _album
 
 
@@ -118,10 +117,10 @@ class Command(BaseCommand):
                         print('Track allready exists')
                     except models.Track.DoesNotExist:
                         track = models.Track(
+                            discnumber = number(tag(m, 'discnumber')),
                             tracknumber = number(tag(m, 'tracknumber')),
                             title = tag(m, 'title'),
                             album = album(m),
-                            #performer = tag(m, 'performer'), # todo, make model
                             #genre
                             length = length(m),
                             path = path,

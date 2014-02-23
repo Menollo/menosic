@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Artists</h1>
+<ul>
+{% for artist in object_list %}
+    <li><a href="{{ artist.get_absolute_url }}">{{ artist.name }}</a></li>
+{% empty %}
+    <li>No artists yet.</li>
+{% endfor %}
+</ul>
+{% endblock content %}

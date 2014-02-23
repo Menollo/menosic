@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ artist.name }}</h1>
+<ul>
+{% for album in artist.album_set.all %}
+    <li><a href="{{ album.get_absolute_url }}">{{ album.year }} - {{ album.name }}</a></li>
+{% empty %}
+    <li>No albums for {{ artist.name }}.</li>
+{% endfor %}
+</ul>
+{% endblock content %}
