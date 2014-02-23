@@ -1,5 +1,5 @@
 """
-Django settings for mennosic project.
+Django settings for menosic project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -48,9 +48,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'mennosic.urls'
+ROOT_URLCONF = 'menosic.urls'
 
-WSGI_APPLICATION = 'mennosic.wsgi.application'
+WSGI_APPLICATION = 'menosic.wsgi.application'
 
 
 # Database
