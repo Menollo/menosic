@@ -1,5 +1,7 @@
-from music import fields
+import datetime
+import mimetypes
 from django.db import models
+from music import fields
 
 class Genre(models.Model):
     name = models.CharField(max_length=255, db_index=True)
@@ -16,6 +18,9 @@ class Artist(models.Model):
 
     musicbrainz_artistid = fields.UUIDField()
 
+    class Meta:
+        ordering = ['sortname']
+
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('artist_detail', args=[self.pk])
@@ -30,7 +35,7 @@ class Label(models.Model):
     name = models.CharField(max_length=255, db_index=True)
 
 class Album(models.Model):
-    name = models.CharField(max_length=255, db_index=True)
+    title = models.CharField(max_length=255, db_index=True)
     artists = models.ManyToManyField(Artist, null=True)
     date = models.CharField(max_length=15, null=True, db_index=True)
     genres = models.ManyToManyField(Genre, null=True)
@@ -67,6 +72,10 @@ class Track(models.Model):
     artists = models.ManyToManyField(Artist, null=True)
     #genre = models.ManyToManyField(Genre, null=True)
     length = models.PositiveIntegerField(null=True)
+    bitrate = models.PositiveIntegerField(null=True)
+    filetype = models.CharField(max_length=15, null=True)
+    filesize = models.PositiveIntegerField(null=True)
+    mtime = models.DateTimeField(null=True)
     path = models.CharField(max_length=255, unique=True, db_index=True)
 
     musicbrainz_trackid = fields.UUIDField()
@@ -74,3 +83,20 @@ class Track(models.Model):
     class Meta:
         ordering = ['discnumber', 'tracknumber']
 
+    @property
+    def duration(self):
+        return str(datetime.timedelta(seconds=self.length))
+
+    @property
+    def mimetype(self):
+        mimetype, encoding = mimetypes.guess_type(self.path)
+        return mimetype
+
+
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('track_detail', args=[self.pk])
+
+    def get_file_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('track', args=[self.pk])

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{ album.name }}</h1>
+<h1>{{ album.title }}</h1>
 <ul>
 {% for track in album.track_set.all %}
     {% ifchanged %}
@@ -9,7 +9,7 @@
         <h2>Disc {{ track.discnumber }}</h2>
         <ul>
     {% endifchanged %}
-    <li><a href="">{{ track.tracknumber }} - {{ track.title }}</a></li>
+    <li><a href="{{ track.get_absolute_url }}">{{ track.tracknumber }} - {{ track.title }} ({{ track.duration }})</a></li>
 {% empty %}
     <li>No tracks for {{ album.name }}.</li>
 {% endfor %}

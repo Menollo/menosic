@@ -61,6 +61,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #'ENGINE': 'django.db.backends.mysql',
+        #'NAME': 'menosic',
+        #'USER': 'menosic',
+        #'PASSWORD': '<s56p6Z/!o$z$Z9ut$GyEHl>VDYxxRZ[',
+        #'HOST': '/var/run/mysqld/mysqld.sock',
     }
 }
 
@@ -75,7 +80,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -83,4 +88,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-MUSIC_DIR = '/srv/safe/Muziek/Jacco/David Bowie/'
+MUSIC_DIR = '/srv/safe/Muziek/Jacco/'
+#MUSIC_DIR = '/srv/safe/Muziek/Jacco/David Bowie/'

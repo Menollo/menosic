@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ track.title }}</h1>
+<ul>
+    <li>Filetype: {{ track.filetype }}</li>
+    <li>Bitrate: {{ track.bitrate }}</li>
+</ul>
+<audio controls>
+    <source src="{{ track.get_file_url }}" type="{{ track.mimetype }}">
+</audio>
+{% endblock content %}

@@ -1,131 +1,98 @@
 import os
 import sys
+import time
 import mutagenx
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db import transaction
+from music.tags import File
 
 from music import models
 
-def tag(m, tag):
-    if m.get(tag):
-        if len(m.get(tag)) == 1:
-            return m.get(tag)[0]
-        else: 
-            print("found more than 1 item, using first one.. artist: %s, album: %s, tag: %s, value: %s" % (m.get('artist'), m.get('album'), tag, m.get(tag)))
-            return m.get(tag)[0]
-
-def number(string):
-    return int(string.split('/')[0])
-
-def length(m):
-    return m.info.length or tag(m, 'length') or None
-
-def index_or_first(l, i):
-    if not l:
-        return None
-    elif len(l) > i:
-        return l[i]
-    else:
-        return l[0]
-
-def _artists(m, names, sortnames=None, musicbrainz_artistids=None, paths=None):
-    for index, name in enumerate(names):
-        sortname = index_or_first(sortnames, index)
-        musicbrainz_artistid = index_or_first(musicbrainz_artistids, index)
-        path = index_or_first(paths, index)
-
+#def _artists(m, names, sortnames=None, musicbrainz_artistids=None, paths=None):
+def artists(t, _artists):
+    for artist in _artists:
         try:
-            artist =  models.Artist.objects.get(name=name)
+            a = models.Artist.objects.get(name=artist.name)
         except models.Artist.DoesNotExist:
-            artist = models.Artist(
-                    name = name,
-                    sortname = sortname,
-                    musicbrainz_artistid = musicbrainz_artistid,
-                    path = path
+            a = models.Artist(
+                    name = artist.name,
+                    sortname = artist.sortname,
+                    musicbrainz_artistid = artist.musicbrainz_artistid,
                 )
-            artist.save()
+            a.save()
 
-        artist.genres.add(*genres(m))
-        yield artist
+        a.genres.add(*genres(t.genres))
+        yield a
 
-def artists(m):
-    return _artists(m,
-            m.get('artist'),
-            m.get('artistsort'), 
-            m.get('musicbrainz_artistid'),
-            None)
+def albumtypes(names):
+    return [models.AlbumType.objects.get_or_create(name=name)[0] for name in names or []]
 
-def albumartists(m):
-    return _artists(m,
-            m.get('albumartist') or m.get('performer') or m.get('artist'),
-            m.get('albumartistsort') or m.get('artistsort'),
-            m.get('musicbrainz_albumartistid') or m.get('musicbrainz_artistid'),
-            None)
+def albumstatus(names):
+    return [models.AlbumStatus.objects.get_or_create(name=name)[0] for name in names or []]
 
-def albumtypes(m):
-    for name in m.get('musicbrainz_albumtype') or []:
-        yield models.AlbumType.objects.get_or_create(name=name)[0]
+def labels(names):
+    return [models.Label.objects.get_or_create(name=name)[0] for name in names or []]
 
-def albumstatus(m):
-    for name in m.get('musicbrainz_albumstatus') or []:
-        yield models.AlbumStatus.objects.get_or_create(name=name)[0]
-
-def labels(m):
-    for name in m.get('label') or []:
-        yield models.Label.objects.get_or_create(name=name)[0]
-
-def genres(m):
-    for name in m.get('genre') or []:
-        yield models.Genre.objects.get_or_create(name=name)[0]
+def genres(names):
+    return [models.Genre.objects.get_or_create(name=name)[0] for name in names or []]
 
 def country(name):
     if name:
         return models.Country.objects.get_or_create(name=name)[0]
 
-def album(m):
+def album(t):
     try:
-        _album = models.Album.objects.get(name=tag(m, 'album'))
+        _album = models.Album.objects.get(title=t.album.title)
     except models.Album.DoesNotExist:
         _album = models.Album(
-                name = tag(m, 'album'),
-                date = tag(m, 'date'),
-                #albumtype = tag(m, 'albumtype'),
-                country = country(tag(m, 'country')),
-
-                musicbrainz_albumid = m.get('musicbrainz_albumid'),
-                musicbrainz_releasegroupid = m.get('musicbrainz_releasegroupid')
+                title = t.album.title,
+                date = t.album.date,
+                country = country(t.album.country),
+                musicbrainz_albumid = t.album.musicbrainz_albumid,
+                musicbrainz_releasegroupid = t.album.musicbrainz_releasegroupid
             )
         _album.save()
 
-    _album.artists.add(*albumartists(m))
-    _album.genres.add(*genres(m))
-    _album.labels.add(*labels(m))
-    _album.albumtypes.add(*albumtypes(m))
-    _album.albumstatus.add(*albumstatus(m))
+    _album.artists.add(*artists(t, t.album.albumartists))
+    _album.genres.add(*genres(t.genres))
+    _album.labels.add(*labels(t.album.labels))
+    _album.albumtypes.add(*albumtypes(t.album.albumtypes))
+    _album.albumstatus.add(*albumstatus(t.album.albumstatus))
     return _album
+
+@transaction.atomic()
+def handle_folder(root, files):
+    print('Scanning folder: %s' % root)
+    for f in files:
+        #peform = time.time()
+        path = os.path.join(root, f)
+        try:
+            track = models.Track.objects.get(path=path)
+            if int(track.mtime.timestamp()) == int(os.stat(path).st_mtime):
+                continue
+        except models.Track.DoesNotExist:
+            track = models.Track()
+
+        t = File(path)
+        if t:
+            track.discnumber = t.discnumber
+            track.tracknumber = t.tracknumber
+            track.title = t.title
+            track.album = album(t)
+            track.length = t.length
+            track.bitrate = t.bitrate
+            track.filetype = t.filetype
+            track.filesize = t.filesize
+            track.mtime = t.mtime
+            track.musicbrainz_trackid = t.musicbrainz_trackid
+            track.path = path
+            track.save()
+            track.artists.add(*artists(t, t.artists))
+        #print(time.time()-peform)
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         for root, dirs, files in os.walk(settings.MUSIC_DIR):
-            for f in files:
-                m = mutagenx.File(os.path.join(root,f), easy=True)
-                if m:
-                    path = os.path.join(root, f)
-                    try:
-                        track = models.Track.objects.get(path=path)
-                        print('Track allready exists')
-                    except models.Track.DoesNotExist:
-                        track = models.Track(
-                            discnumber = number(tag(m, 'discnumber')),
-                            tracknumber = number(tag(m, 'tracknumber')),
-                            title = tag(m, 'title'),
-                            album = album(m),
-                            #genre
-                            length = length(m),
-                            path = path,
-                            musicbrainz_trackid = tag(m, 'musicbrainz_trackid')
-
-                        )
-                        track.save()
-                        track.artists.add(*artists(m))
+            handle_folder(root, files)
