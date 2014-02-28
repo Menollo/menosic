@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<h1>Artists</h1>
-<ul>
-{% for artist in object_list %}
+{% block artists %}
+
+  <h2>Artists</h2>
+  <ul class="nav nav-sidebar">
+    {% for artist in object_list %}
+    {% ifchanged %}</ul>{{ artist.sortname.0 }}<ul>{% endifchanged %}
     <li><a href="{{ artist.get_absolute_url }}">{{ artist.name }}</a></li>
-{% empty %}
-    <li>No artists yet.</li>
-{% endfor %}
-</ul>
-{% endblock content %}
+    {% endfor %}
+  </ul>
+
+{% endblock artists %}

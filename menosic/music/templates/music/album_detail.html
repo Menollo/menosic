@@ -1,6 +1,5 @@
-{% extends 'base.html' %}
+<a href="{{ album.artists.all.0.get_absolute_url }}">{{ album.artists.all.0.name }}</a> / {{ album.title }}
 
-{% block content %}
 <h1>{{ album.title }}</h1>
 <ul>
 {% for track in album.track_set.all %}
@@ -14,4 +13,3 @@
     <li>No tracks for {{ album.name }}.</li>
 {% endfor %}
 </ul>
-{% endblock content %}

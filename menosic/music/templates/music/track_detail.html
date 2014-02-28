@@ -1,6 +1,5 @@
-{% extends 'base.html' %}
+<a href="{{ track.album.artists.all.0.get_absolute_url }}">{{ track.album.artists.all.0.name }}</a> / <a href="{{ track.album.get_absolute_url }}">{{ track.album.title }}</a> / {{ track.title }}
 
-{% block content %}
 <h1>{{ track.title }}</h1>
 <ul>
     <li>Filetype: {{ track.filetype }}</li>
@@ -9,4 +8,3 @@
 <audio controls>
     <source src="{{ track.get_file_url }}" type="audio/mpeg">
 </audio>
-{% endblock content %}

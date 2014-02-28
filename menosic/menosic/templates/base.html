@@ -1,8 +1,144 @@
 <html>
+<head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+
+<style>
+#sidebar {
+    overflow-y: scroll;
+    height: 100%;
+    border-right: 1px solid #ddd;
+}
+#content-above {
+    height: 60%;
+}
+#playlist {
+    height: 40%;
+    margin-top -1px;
+    border-top: 1px solid #ddd;
+    overflow-y: scroll;
+}
+#content-container {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+#content {
+    overflow-y: scroll;
+    height: 100%;
+    border-right: 1px solid #ddd;
+    padding-top: 15px;
+}
+@media (max-width: 767px) {
+    #meta {
+        display: none;
+    }
+    #content-above {
+        padding: 0;
+    }
+}
+</style>
+<script>
+
+function link_to_content() {
+    var href = $(this).attr('href');
+    $.get(href, function(data) {
+        $("#content").html(data);
+        $('#content a').click(link_to_content);
+    });
+    return false;
+}
+
+$(document).ready(function() {
+    $('#sidebar a').click(link_to_content);
+});
+
+</script>
+
+
+</head>
 
 <body>
-    {% block content %}
 
-    {% endblock content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-4 col-md-3 container" id="sidebar">
+            {% block artists %}
+            {% endblock artists %}
+        </div> 
+
+        <div class="col-sm-8 col-md-9" id="content-container">
+            <div id="content-above" class="container-fluid">
+                <div class="col-sm-8 col-md-9" id="content">
+                    <h1>Welkom</h1>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                </div>
+                <div class="col-sm-4 col-md-3" id="meta">
+                    <h2>Meta</h2>
+                </div>
+            </div>
+            <div id="playlist" class="content-fluid">
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+                bla bla bla<br/>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 </body>
 </html>
