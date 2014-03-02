@@ -43,7 +43,7 @@ def country(name):
 
 def album(t):
     try:
-        _album = models.Album.objects.get(title=t.album.title)
+        _album = models.Album.objects.get(title=t.album.title, artists__name__in = [a.name for a in t.album.albumartists])
     except models.Album.DoesNotExist:
         _album = models.Album(
                 title = t.album.title,
