@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block all %}
+
+<div id="registration" class="panel panel-default">
+<div class="panel-heading"><h1>Login</h1></div>
+{% if form.errors %}
+<p class="alert alert-danger">Your username and password didn't match. Please try again.</p>
+{% endif %}
+
+<form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+{% csrf_token %}
+
+<p> {{ form.username.label_tag }} {{ form.username}}</p>
+<p>{{ form.password.label_tag }} {{ form.password }}</p>
+
+<p>
+<input type="submit" value="login" />
+<input type="hidden" name="next" value="{{ next }}" />
+</p>
+
+</form>
+
+</div>
+{% endblock all %}
