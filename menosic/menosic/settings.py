@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'ffg1&x84gehk4#3=4aw2slg83v-h=kp@znluxvtasb&2#ulgb)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = __debug__
 
 TEMPLATE_DEBUG = True
 
@@ -87,6 +87,8 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGIN_REDIRECT_URL = '/'
 
 MUSIC_DIR = '/srv/safe/Muziek/Jacco/'
 #MUSIC_DIR = '/srv/safe/Muziek/Jacco/David Bowie/'

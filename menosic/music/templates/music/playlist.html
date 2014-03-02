@@ -1,5 +1,5 @@
 <ul>
-{% for t in track.album.track_set.all %}
-<li {% if t.id == track.id %}class="playing"{% endif %}><a href="{{ t.get_file_url }}">{{ t.title }}</a></li>
+{% for t in playlist.tracks.all %}
+    <li {% if t.id == current.id %}class="playing"{% endif %}><a mp3="{{ t.get_mp3_url }}" ogg="{{ t.get_ogg_url }}">{{ t.title }}</a></li>
 {% endfor %}
 </ul>

@@ -2,6 +2,7 @@ import datetime
 import mimetypes
 from django.db import models
 from music import fields
+from django.contrib.auth.models import User
 
 class Genre(models.Model):
     name = models.CharField(max_length=255, db_index=True)
@@ -97,6 +98,30 @@ class Track(models.Model):
         from django.core.urlresolvers import reverse
         return reverse('track_detail', args=[self.pk])
 
-    def get_file_url(self):
+    def get_mp3_url(self):
         from django.core.urlresolvers import reverse
-        return reverse('track', args=[self.pk])
+        return reverse('track', args=['mp3', self.pk])
+
+    def get_ogg_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('track', args=['ogg', self.pk])
+
+class Playlist(models.Model):
+    user = models.ForeignKey(User)
+    tracks = models.ManyToManyField(Track)
+
+    def add_tracks(self, qs):
+        self.tracks.through.objects.bulk_create(
+                [self.tracks.through(playlist_id = self.id, track_id=track.id) for track in qs]
+            )
+
+
+class Player(models.Model):
+    PLAYER_TYPES = (
+            ('B', 'Browser'),
+            ('E', 'External'), # not yet implemented
+            ('C', 'Client'), # not yet implemented
+        )
+    user = models.ForeignKey(User)
+    type = models.CharField(max_length=1, choices=PLAYER_TYPES)
+    playlist = models.OneToOneField(Playlist)

@@ -13,6 +13,23 @@
 
 
 <style>
+#registration {
+    margin: 100px auto;
+    max-width: 320px;
+}
+#registration h1 {
+    margin: 0;
+    padding: 0;
+}
+#registration form {
+    padding: 15px;
+    margin: 0;
+}
+#registration label{
+    width: 100px;
+    display: inline-block;
+}
+
 #artists { /* left sidebar */
     overflow-y: scroll;
     height: 100%;
@@ -62,15 +79,20 @@
 </style>
 <script>
 function play_selected() {
-    source = $('#playlist .playing a').attr('href');
-    $('#player source').attr('src', source).detach().appendTo('#player');
-    $('#player').trigger('play');
+    player = $('#player').get(0);
+    player.pause();
+    $('#player source#mp3').attr('src', $("#playlist .playing a").attr("mp3"));
+    $('#player source#ogg').attr('src', $("#playlist .playing a").attr("ogg"));
+    player.load();
+    player.play();
 }
 function play_next() {
     current = $('#playlist .playing');
-    current.next('li').addClass('playing');
-    current.removeClass('playing');
-    play_selected();
+    if (current.get(0) != $('#playlist li:last').get(0)) {
+        current.next('li').addClass('playing');
+        current.removeClass('playing');
+        play_selected();
+    }
 }
 
 function link_to_playlist() {
@@ -110,6 +132,7 @@ $(document).ready(function() {
 
 <body>
 
+{% block all %}
 <div class="container-fluid">
     <div class="row">
 
@@ -125,7 +148,9 @@ $(document).ready(function() {
             </div>
             <div id="playlist-container">
                 <audio controls id="player">
-                    <source />
+                    <source id="mp3" type="audio/mpeg" />
+                    <source id="ogg" type="audio/ogg" />
+                    Your browser does not support the audio tag!
                 </audio>
                 <div id="playlist" class="padding">
                     <ul>
@@ -140,6 +165,7 @@ $(document).ready(function() {
 
     </div>
 </div>
+{% endblock all %}
 
 </body>
 </html>
