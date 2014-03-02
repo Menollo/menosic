@@ -1,0 +1,5 @@
+<ul>
+{% for t in track.album.track_set.all %}
+<li {% if t.id == track.id %}class="playing"{% endif %}><a href="{{ t.get_file_url }}">{{ t.title }}</a></li>
+{% endfor %}
+</ul>

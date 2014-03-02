@@ -22,6 +22,12 @@ class AlbumDetailView(DetailView):
 class TrackDetailView(DetailView):
     model = models.Track
 
+class PlayAlbumTrack(DetailView):
+    model = models.Track
+    template_name = 'music/playlist.html'
+
+    # create new playlist and add album
+
 
 class TrackView(SingleObjectMixin, View):
     model = models.Track

@@ -13,53 +13,94 @@
 
 
 <style>
-#sidebar {
+#artists { /* left sidebar */
     overflow-y: scroll;
     height: 100%;
     border-right: 1px solid #ddd;
 }
-#content-above {
-    height: 60%;
+#content-container { /* middle container */
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
-#playlist {
+#content { /* middle top */
+    height: 60%;
+    overflow-y: scroll;
+}
+#playlist-container { /* middle bottom */
     height: 40%;
     margin-top -1px;
     border-top: 1px solid #ddd;
-    overflow-y: scroll;
-}
-#content-container {
     padding: 0;
     margin: 0;
-    height: 100%;
 }
-#content {
+#player {
+    position: absolute;
+    height: 30px;
+}
+#playlist {
     overflow-y: scroll;
     height: 100%;
-    border-right: 1px solid #ddd;
-    padding-top: 15px;
+    padding-top: 45px;
+}
+#meta { /* right sidebar */
+    overflow-y: scroll;
+    height: 100%;
+    border-left: 1px solid #ddd;
 }
 @media (max-width: 767px) {
     #meta {
         display: none;
     }
-    #content-above {
-        padding: 0;
-    }
+}
+.padding {
+    padding: 15px;
+}
+.playing {
+    font-weight: bold;
 }
 </style>
 <script>
+function play_selected() {
+    source = $('#playlist .playing a').attr('href');
+    $('#player source').attr('src', source).detach().appendTo('#player');
+    $('#player').trigger('play');
+}
+function play_next() {
+    current = $('#playlist .playing');
+    current.next('li').addClass('playing');
+    current.removeClass('playing');
+    play_selected();
+}
+
+function link_to_playlist() {
+    var href = $(this).attr('href');
+    $.get(href, function(data) {
+        $("#playlist").html(data);
+        play_selected();
+        $('#playlist a').click(function() {
+            $('.playing').removeClass('playing');
+            $(this).parent('li').addClass('playing');
+            play_selected();
+            return false;
+        });
+    });
+    return false;
+}
 
 function link_to_content() {
     var href = $(this).attr('href');
     $.get(href, function(data) {
         $("#content").html(data);
         $('#content a').click(link_to_content);
+        $('#content a.play').unbind('click').click(link_to_playlist);
     });
     return false;
 }
 
 $(document).ready(function() {
-    $('#sidebar a').click(link_to_content);
+    $('#artists a').click(link_to_content);
+    $('#player').bind('ended', play_next);
 });
 
 </script>
@@ -71,70 +112,30 @@ $(document).ready(function() {
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-4 col-md-3 container" id="sidebar">
+
+        <div class="col-sm-3 col-md-3 padding" id="artists">
             {% block artists %}
             {% endblock artists %}
         </div> 
 
-        <div class="col-sm-8 col-md-9" id="content-container">
-            <div id="content-above" class="container-fluid">
-                <div class="col-sm-8 col-md-9" id="content">
+        <div class="col-sm-6 col-md-6" id="content-container">
+            <div id="content" class="padding">
                     <h1>Welkom</h1>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                </div>
-                <div class="col-sm-4 col-md-3" id="meta">
-                    <h2>Meta</h2>
+                    <p>Please select a track</p>
+            </div>
+            <div id="playlist-container">
+                <audio controls id="player">
+                    <source />
+                </audio>
+                <div id="playlist" class="padding">
+                    <ul>
+                        <li>Playlist is empty</li>
+                    </ul>
                 </div>
             </div>
-            <div id="playlist" class="content-fluid">
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-                bla bla bla<br/>
-            </div>
+        </div>
+        <div class="col-sm-3 col-md-3 padding" id="meta">
+            <h2>Meta</h2>
         </div>
 
     </div>
