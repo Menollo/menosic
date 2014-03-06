@@ -125,8 +125,7 @@ class TrackView(SingleObjectMixin, View):
             cmd = ["lame", "--silent", "--decode", self.track.path, "-"]
         else:
             cmd = ["ffmpeg", "-i", self.track.path, "-v", "0", "-f", "wav", "-"]
-        stream_in = subprocess.Popen(cmd,
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        stream_in = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
         # output
         if self.output == 'mp3':
@@ -135,7 +134,16 @@ class TrackView(SingleObjectMixin, View):
             cmd = ["oggenc", "--quiet", "-q", "3", "-"]
         stream_out = subprocess.Popen(cmd,
             stdin=stream_in.stdout, stdout=subprocess.PIPE)
-        return StreamingHttpResponse(stream_out.stdout, content_type=self.get_content_type())
+
+        def yield_and_cleanup(p_out, p_in):
+            try:
+                for line in p_out.stdout:
+                    yield line
+            finally:
+                p_out.communicate()
+                p_in.communicate()
+
+        return StreamingHttpResponse(yield_and_cleanup(stream_out, stream_in), content_type=self.get_content_type())
 
     def get(self, request, *args, **kwargs):
         self.track = self.get_object()
