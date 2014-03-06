@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     url(r'^track/(?P<pk>\d+)/$', views.TrackDetailView.as_view(), name='track_detail'),
 
     url(r'^play_album_track/(?P<pk>\d+)/$', views.PlayAlbumTrack.as_view(), name='play_album_track'),
+    url(r'^external/(?P<pk>\d+)/$', views.PlayerJSON.as_view(), name='external'),
 
     url(r'^file/(?P<pk>\d+)/$', views.TrackView.as_view(), name='track'),
     url(r'^file/(?P<output>\w+)/(?P<pk>\d+)/$', views.TrackView.as_view(), name='track'),

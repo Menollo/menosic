@@ -1,15 +1,17 @@
 import mimetypes
+import subprocess
+import os
+import json
 
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.detail import SingleObjectMixin, BaseDetailView
 from django.http import HttpResponse, StreamingHttpResponse
 #from django.core.servers.basehttp import FileWrapper
 from django.conf import settings
-import subprocess
-import os
 
 from music import models
 
+# browse views
 class ArtistListView(ListView):
     queryset = models.Artist.objects.exclude(album=None)
 
@@ -23,6 +25,7 @@ class TrackDetailView(DetailView):
     model = models.Track
 
 
+# playlist view
 class PlayerMixin(object):
     def get_player(self):
         try:
@@ -70,7 +73,31 @@ class PlayAlbumTrack(PlayerMixin, DetailView):
     def get_current_track(self):
         return self.object
 
+class JSONResponseMixin(object):
+    def render_to_response(self, context):
+        return HttpResponse(json.dumps(context), content_type='application/json')
 
+class PlayerJSON(JSONResponseMixin, BaseDetailView):
+    model = models.Player
+
+    def get_context_data(self, **kwargs):
+        playlist = self.get_object().playlist
+        tracks = [{
+            'id': pt.id,
+            'mp3': pt.track.get_mp3_url(),
+            'ogg': pt.track.get_ogg_url(),
+            'length': pt.track.length,
+            'title': pt.track.title
+            #} for track in self.get_object().playlist.tracks.all()]
+            } for pt in playlist.tracks.through.objects.filter(playlist=playlist).order_by('id')]
+        context_data = {
+            'playlist': tracks,
+        }
+        #context_data.update(kwargs)
+        return context_data
+
+
+# Serve the track files
 class TrackView(SingleObjectMixin, View):
     model = models.Track
     output = 'mp3'
