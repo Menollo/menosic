@@ -1,6 +1,7 @@
 <a href="{{ album.artists.all.0.get_absolute_url }}">{{ album.artists.all.0.name }}</a> / {{ album.title }}
 
 <h1>{{ album.title }}</h1>
+<p><a class="to_playlist" href="{% url 'add_album' album.id %}">+ add to playlist</a></p>
 <ul>
 {% for track in album.track_set.all %}
     {% ifchanged %}
@@ -8,7 +9,7 @@
         <h2>Disc {{ track.discnumber }}</h2>
         <ul>
     {% endifchanged %}
-    <li><a class="play" href="{% url 'play_album_track' track.id %}">{{ track.tracknumber }} - {{ track.title }} ({{ track.duration }})</a></li>
+    <li><a class="to_playlist" href="{% url 'play_album_track' track.id %}">{{ track.tracknumber }} - {{ track.title }} ({{ track.duration }})</a></li>
 {% empty %}
     <li>No tracks for {{ album.name }}.</li>
 {% endfor %}

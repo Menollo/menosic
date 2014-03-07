@@ -85,8 +85,13 @@ class Track(models.Model):
         ordering = ['discnumber', 'tracknumber']
 
     @property
+    def artist(self):
+        return ", ".join([a.name for a in self.artists.all()])
+
+    @property
     def duration(self):
-        return str(datetime.timedelta(seconds=self.length))
+        duration = str(datetime.timedelta(seconds=self.length))
+        return duration[2:] if duration[0:2] == '0:' else duration
 
     @property
     def mimetype(self):
@@ -108,12 +113,41 @@ class Track(models.Model):
 
 class Playlist(models.Model):
     user = models.ForeignKey(User)
-    tracks = models.ManyToManyField(Track)
+    #tracks = models.ManyToManyField(Track, through='music.PlaylistTrack')
+
+    @property
+    def tracks(self):
+        return self.playlisttrack_set.all()
+
+    def empty(self):
+        self.playlisttrack_set.all().delete()
 
     def add_tracks(self, qs):
-        self.tracks.through.objects.bulk_create(
-                [self.tracks.through(playlist_id = self.id, track_id=track.id) for track in qs]
+        last = PlaylistTrack.objects.last()
+        last_sort = last.sort_order if last else 0
+
+        PlaylistTrack.objects.bulk_create(
+                [PlaylistTrack(playlist_id = self.id, track_id=track.id, sort_order=last_sort+counter) for counter, track in enumerate(qs, start=1)]
             )
+
+
+class PlaylistTrack(models.Model):
+    playlist = models.ForeignKey(Playlist)
+    track = models.ForeignKey(Track)
+    sort_order = models.IntegerField()
+
+    class Meta:
+        ordering = ['sort_order']
+
+    @property
+    def identifier(self):
+        return "%s_%s" % (self.id, self.track_id)
+
+    def safe(self, *args, **kwargs):
+        if not self.sort_order:
+            last = PlaylistTrack.objects.last()
+            self.sort_order = last.sort_order + 1 if last else 1
+        super(PlaylistTrack, self).savew(*args, **kwargs)
 
 
 class Player(models.Model):

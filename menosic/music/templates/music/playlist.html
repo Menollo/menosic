@@ -1,5 +1,20 @@
-<ul>
-{% for t in playlist.tracks.all %}
-    <li {% if t.id == current.id %}class="playing"{% endif %}><a mp3="{{ t.get_mp3_url }}" ogg="{{ t.get_ogg_url }}">{{ t.title }}</a></li>
+<table class="table table-hover">
+<thead>
+    <tr>
+        <th>Title</th>
+        <th>Artist</th>
+        <th>Album</th>
+        <th>Duration</th>
+    </tr>
+</thead>
+<tbody>
+{% for pt in playlist.tracks %}
+    <tr id="{{ pt.identifier }}" {% if pt.track.id == current.id %}class="playing"{% endif %}>
+        <td><a mp3="{{ pt.track.get_mp3_url }}" ogg="{{ pt.track.get_ogg_url }}">{{ pt.track.title }}</a></td>
+        <td>{{ pt.track.artist }}</td>
+        <td>{{ pt.track.album.title }}</td>
+        <td>{{ pt.track.duration }}</td>
+    </tr>
 {% endfor %}
-</ul>
+</tbody>
+</table>

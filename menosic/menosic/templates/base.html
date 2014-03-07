@@ -83,29 +83,39 @@ function play_selected() {
     player.pause();
     $('#player source#mp3').attr('src', $("#playlist .playing a").attr("mp3"));
     $('#player source#ogg').attr('src', $("#playlist .playing a").attr("ogg"));
+    $('#player').attr('playlist_id', $('#playlist .playing').attr('id'));
     player.load();
     player.play();
 }
 function play_next() {
     current = $('#playlist .playing');
-    if (current.get(0) != $('#playlist li:last').get(0)) {
-        current.next('li').addClass('playing');
+    if (current.get(0) != $('#playlist tr:last').get(0)) {
+        current.next('tr').addClass('playing');
         current.removeClass('playing');
         play_selected();
     }
 }
 
+function link_to_player() {
+    $('.playing').removeClass('playing');
+    $(this).parent('td').parent('tr').addClass('playing');
+    play_selected();
+    return false;
+}
 function link_to_playlist() {
     var href = $(this).attr('href');
     $.get(href, function(data) {
         $("#playlist").html(data);
-        play_selected();
-        $('#playlist a').click(function() {
-            $('.playing').removeClass('playing');
-            $(this).parent('li').addClass('playing');
+        if ($("#playlist .playing").length > 0) {
             play_selected();
-            return false;
-        });
+        } else {
+            var playing_id = $('#player').attr('playlist_id')
+            $('#playlist #'+playing_id).addClass('playing');
+            if($('#playlist .playing').length == 0) {
+                player.pause();
+            }
+        }
+        $('#playlist a').click(link_to_player);
     });
     return false;
 }
@@ -115,13 +125,14 @@ function link_to_content() {
     $.get(href, function(data) {
         $("#content").html(data);
         $('#content a').click(link_to_content);
-        $('#content a.play').unbind('click').click(link_to_playlist);
+        $('#content a.to_playlist').unbind('click').click(link_to_playlist);
     });
     return false;
 }
 
 $(document).ready(function() {
     $('#artists a').click(link_to_content);
+    $('#playlist a').click(link_to_player);
     $('#player').bind('ended', play_next);
 });
 
@@ -153,9 +164,7 @@ $(document).ready(function() {
                     Your browser does not support the audio tag!
                 </audio>
                 <div id="playlist" class="padding">
-                    <ul>
-                        <li>Playlist is empty</li>
-                    </ul>
+                    {% include 'music/playlist.html' %}
                 </div>
             </div>
         </div>

@@ -10,6 +10,7 @@ from django.http import HttpResponse, StreamingHttpResponse
 from django.conf import settings
 
 from music import models
+from music import helpers
 
 # browse views
 class ArtistListView(ListView):
@@ -27,26 +28,13 @@ class TrackDetailView(DetailView):
 
 # playlist view
 class PlayerMixin(object):
-    def get_player(self):
-        try:
-            player = models.Player.objects.get(user=self.request.user, type='B')
-        except models.Player.DoesNotExist:
-            player = models.Player(
-                    user=self.request.user,
-                    type='B'
-                )
-            playlist = models.Playlist(user=self.request.user)
-            playlist.save()
+    template_name = 'music/playlist.html'
 
-            player.playlist = playlist
-            player.save()
-
-        self.player = player
-        return player
 
     def get_context_data(self, **kwargs):
+        player = helpers.player_for_user(self.request.user)
         context_data = {
-            'playlist': self.update_playlist(self.get_player().playlist),
+            'playlist': self.update_playlist(player.playlist),
             'current': self.get_current_track(),
         }
         context_data.update(kwargs)
@@ -61,10 +49,9 @@ class PlayerMixin(object):
 
 class PlayAlbumTrack(PlayerMixin, DetailView):
     model = models.Track
-    template_name = 'music/playlist.html'
 
     def update_playlist(self, playlist):
-        playlist.tracks.clear()
+        playlist.empty()
         playlist.add_tracks(self.object.album.track_set.all())
         playlist.save()
 
@@ -72,6 +59,13 @@ class PlayAlbumTrack(PlayerMixin, DetailView):
 
     def get_current_track(self):
         return self.object
+
+class AddAlbumToPlaylist(PlayerMixin, DetailView):
+    model = models.Album
+
+    def update_playlist(self, playlist):
+        playlist.add_tracks(self.object.track_set.all())
+        return playlist
 
 class JSONResponseMixin(object):
     def render_to_response(self, context):
@@ -83,13 +77,16 @@ class PlayerJSON(JSONResponseMixin, BaseDetailView):
     def get_context_data(self, **kwargs):
         playlist = self.get_object().playlist
         tracks = [{
-            'id': pt.id,
+            'id': pt.identifier,
+            'sort': pt.sort_order,
             'mp3': pt.track.get_mp3_url(),
             'ogg': pt.track.get_ogg_url(),
             'length': pt.track.length,
-            'title': pt.track.title
+            'title': pt.track.title,
+            'album': pt.track.album.title,
+            'artist': pt.track.artist
             #} for track in self.get_object().playlist.tracks.all()]
-            } for pt in playlist.tracks.through.objects.filter(playlist=playlist).order_by('id')]
+            } for pt in playlist.tracks]
         context_data = {
             'playlist': tracks,
         }
