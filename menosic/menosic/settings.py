@@ -102,4 +102,6 @@ STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/'
 
 MUSIC_DIR = '/srv/safe/Muziek/Jacco/'
-#MUSIC_DIR = '/srv/safe/Muziek/Jacco/David Bowie/'
+
+# Text to use for obligated fields (None is strickt mode, raises exception on missing information)
+UNKNOWN_TEXT = 'Unknown'

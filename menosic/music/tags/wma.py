@@ -2,7 +2,6 @@ from mutagenx.asf import ASF
 from music import tags
 
 l = tags.list_to_item
-to_int = lambda x: None if not x else int(str(x))
 
 class Track(tags.Track):
     filetype = 'wma'
@@ -13,8 +12,8 @@ class Track(tags.Track):
         f = self.wma
 
         self.title = l(f.get('Title'))
-        self.discnumber = to_int(l(f.get('WM/PartOfSet')))
-        self.tracknumber = to_int(l(f.get('WM/TrackNumber')))
+        self.discnumber = tags.number(l(f.get('WM/PartOfSet')))
+        self.tracknumber = tags.number(l(f.get('WM/TrackNumber')))
         self.length = int(f.info.length)
         self.bitrate = int(f.info.bitrate)
 

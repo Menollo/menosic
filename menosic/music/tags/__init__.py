@@ -4,12 +4,15 @@ from datetime import datetime
 
 def File(f):
     ext = os.path.splitext(f)[1].lower()
-    try:
-        module = importlib.import_module('music.tags%s' % ext)
-        return module.Track(f)
-    except ImportError:
-        print('Unknown filetype %s' % ext)
-        return None
+    if ext:
+        try:
+            module = importlib.import_module('music.tags%s' % ext)
+            return module.Track(f)
+        except ImportError:
+            pass
+
+    print('Unknown filetype %s' % ext)
+    return None
 
 class Track(object):
     filetype = None # string
@@ -60,7 +63,10 @@ item_to_list = lambda i: [] if not i else str(i).split('\x00')
 data = lambda d: None if not d else d.data
 
 def number(string):
-    string = str(string)
+    try:
+        string = str(int(string))
+    except:
+        string = str(string)
     try:
         if '/' in string:
             return int(string.split('/')[0])

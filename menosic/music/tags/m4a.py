@@ -12,8 +12,8 @@ class Track(tags.Track):
         f = self.m4a
 
         self.title = l(f.get(b'\xa9nam'))
-        self.discnumber = l(f.get(b'disk'))[0]
-        self.tracknumber = l(f.get(b'trkn'))[0]
+        self.discnumber = tags.number(l(f.get(b'disk')))
+        self.tracknumber = tags.number(l(f.get(b'trkn')))
         self.length = int(f.info.length)
         self.bitrate = int(f.info.bitrate)
 
