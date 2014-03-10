@@ -90,7 +90,7 @@ def handle_folder(root, files):
         if t:
             track.discnumber = t.discnumber
             track.tracknumber = t.tracknumber
-            track.title = t.title or f if settings.UNKNOWN_TEXT else None
+            track.title = t.title or (f if settings.UNKNOWN_TEXT else None)
             track.album = album(t)
             track.length = t.length
             track.bitrate = t.bitrate
