@@ -1,8 +1,27 @@
 import datetime
 import mimetypes
+import importlib
 from django.db import models
 from music import fields
 from django.contrib.auth.models import User
+
+class Collection(models.Model):
+    COLLECTION_BACKENDS = (
+            ('T', 'Tags'),
+            ('F', 'Files'), # not yet implemented
+            ('R', 'Remote'), # not yet implemented
+        )
+    name = models.CharField(max_length=255, db_index=True)
+    backend = models.CharField(max_length=1, choices=COLLECTION_BACKENDS)
+    location = models.CharField(max_length=255)
+
+    def scan(self):
+        try:
+            import bpdb; bpdb.set_trace()
+            backend = importlib.import_module('music.backend.%s.scan' % self.get_backend_display().lower())
+            return backend.Scan(self)
+        except ImportError:
+            print("Don't know how to scan :(")
 
 class Genre(models.Model):
     name = models.CharField(max_length=255, db_index=True)
@@ -11,16 +30,21 @@ class Country(models.Model):
     name = models.CharField(max_length=255, db_index=True)
 
 class Artist(models.Model):
-    name = models.CharField(max_length=255, db_index=True, unique=True)
+    name = models.CharField(max_length=255, db_index=True)
     sortname = models.CharField(max_length=255, db_index=True)
     genres = models.ManyToManyField(Genre, null=True)
     country = models.ForeignKey(Country, null=True)
-    path = models.CharField(max_length=255, unique=True, db_index=True, null=True)
+    path = models.CharField(max_length=255, db_index=True, null=True)
+    collection = models.ForeignKey(Collection)
 
     musicbrainz_artistid = fields.UUIDField()
 
     class Meta:
         ordering = ['sortname']
+        unique_together = (
+                ('collection', 'path'),
+                ('collection', 'name'),
+            )
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
@@ -42,16 +66,21 @@ class Album(models.Model):
     genres = models.ManyToManyField(Genre, null=True)
     country = models.ForeignKey(Country, null=True)
     path = models.CharField(max_length=255, db_index=True, null=True)
+    collection = models.ForeignKey(Collection)
 
     labels = models.ManyToManyField(Label, null=True)
     albumtypes = models.ManyToManyField(AlbumType, null=True)
     albumstatus = models.ManyToManyField(AlbumStatus, null=True)
 
-    musicbrainz_albumid = fields.UUIDField(unique=True)
+    musicbrainz_albumid = fields.UUIDField()
     musicbrainz_releasegroupid = fields.UUIDField()
 
     class Meta:
         ordering = ['date']
+        unique_together = (
+                ('collection', 'path'),
+                ('collection', 'musicbrainz_albumid'),
+            )
 
     @property
     def year(self):
@@ -77,12 +106,16 @@ class Track(models.Model):
     filetype = models.CharField(max_length=15, null=True)
     filesize = models.PositiveIntegerField(null=True)
     mtime = models.DateTimeField(null=True)
-    path = models.CharField(max_length=255, unique=True, db_index=True)
+    path = models.CharField(max_length=255, db_index=True)
+    collection = models.ForeignKey(Collection)
 
     musicbrainz_trackid = fields.UUIDField()
 
     class Meta:
         ordering = ['discnumber', 'tracknumber']
+        unique_together = (
+                ('collection', 'path'),
+            )
 
     @property
     def artist(self):
@@ -111,9 +144,11 @@ class Track(models.Model):
         from django.core.urlresolvers import reverse
         return reverse('track', args=['ogg', self.pk])
 
+##################
+# Playlist stuff #
+##################
 class Playlist(models.Model):
     user = models.ForeignKey(User)
-    #tracks = models.ManyToManyField(Track, through='music.PlaylistTrack')
 
     @property
     def tracks(self):

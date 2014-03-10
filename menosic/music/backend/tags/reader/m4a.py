@@ -1,9 +1,9 @@
 from mutagenx.mp4 import MP4
-from music import tags
+from music.backend.tags import reader
 
-l = tags.list_to_item
+l = reader.list_to_item
 
-class Track(tags.Track):
+class Track(reader.Track):
     filetype = 'm4a'
 
     def __init__(self, path):
@@ -12,21 +12,21 @@ class Track(tags.Track):
         f = self.m4a
 
         self.title = l(f.get(b'\xa9nam'))
-        self.discnumber = tags.number(l(f.get(b'disk')))
-        self.tracknumber = tags.number(l(f.get(b'trkn')))
+        self.discnumber = reader.number(l(f.get(b'disk')))
+        self.tracknumber = reader.number(l(f.get(b'trkn')))
         self.length = int(f.info.length)
         self.bitrate = int(f.info.bitrate)
 
         self.musicbrainz_trackid = l(f.get(b'----:com.apple.iTunes:MusicBrainz Track Id'))
         self.genres = f.get(b'\xa9gen')
 
-        artist = tags.Artist()
+        artist = reader.Artist()
         artist.name = l(f.get(b'\xa9ART'))
         artist.sortname = l(f.get(b'soar'))
         #artist.musicbrainz_artistid = self.mp3.get('TXXX:MusicBrainz Artist Id')[0]
         self.artists.append(artist)
 
-        album = tags.Album()
+        album = reader.Album()
         album.title = l(f.get(b'\xa9alb'))
         album.date = l(f.get(b'\xa9day'))
         album.country = l(f.get(b'----:com.apple.iTunes:MusicBrainz Album Release Country'))
@@ -36,7 +36,7 @@ class Track(tags.Track):
         album.albumtypes = f.get(b'----:com.apple.iTunes:MusicBrainz Album Type')
         album.albumstatus = f.get(b'----:com.apple.iTunes:MusicBrainz Album Status')
 
-        albumartist = tags.Artist()
+        albumartist = reader.Artist()
         albumartist.name = l(f.get(b'aART'))
         albumartist.sortname = l(f.get(b'soaa'))
         album.albumartists.append(albumartist)

@@ -6,7 +6,7 @@ def File(f):
     ext = os.path.splitext(f)[1].lower()
     if ext:
         try:
-            module = importlib.import_module('music.tags%s' % ext)
+            module = importlib.import_module('music.backend.tags.reader%s' % ext)
             return module.Track(f)
         except ImportError:
             pass

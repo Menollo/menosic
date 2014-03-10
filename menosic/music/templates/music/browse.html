@@ -1,0 +1,12 @@
+<h1>{{ title }}</h1>
+<ul>
+{% for item in dirs %}
+    <li><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></li>
+{% endfor %}
+</ul>
+
+<ul>
+{% for item in files %}
+    <li><a class="to_playlist" href="{{ item.get_absolute_url }}">{{ item.title }}</a></li>
+{% endfor %}
+</ul>

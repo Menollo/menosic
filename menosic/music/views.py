@@ -3,9 +3,10 @@ import subprocess
 import os
 import json
 
-from django.views.generic import ListView, DetailView, View
+from django.views.generic import ListView, DetailView, View, TemplateView
 from django.views.generic.detail import SingleObjectMixin, BaseDetailView
 from django.http import HttpResponse, StreamingHttpResponse
+from django.utils.http import urlsafe_base64_decode
 #from django.core.servers.basehttp import FileWrapper
 from django.conf import settings
 
@@ -13,9 +14,6 @@ from music import models
 from music import helpers
 
 # browse views
-class ArtistListView(ListView):
-    queryset = models.Artist.objects.exclude(album=None)
-
 class ArtistDetailView(DetailView):
     model = models.Artist
 
@@ -25,6 +23,20 @@ class AlbumDetailView(DetailView):
 class TrackDetailView(DetailView):
     model = models.Track
 
+class BrowseView(TemplateView):
+    template_name = 'music/browse.html'
+    def get_context_data(self, collection, path, **kwargs):
+        path = urlsafe_base64_decode(path).decode('utf-8')
+
+        collection = models.Collection.objects.get(pk=collection)
+        dirs, files = helpers.items_for_path(collection, path)
+        
+        print(files)
+        return {
+                'title': os.path.basename(path),
+                'dirs': dirs,
+                'files': files,
+            }
 
 # playlist view
 class PlayerMixin(object):

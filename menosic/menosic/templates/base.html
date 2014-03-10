@@ -148,8 +148,13 @@ $(document).ready(function() {
     <div class="row">
 
         <div class="col-sm-3 col-md-3 padding" id="artists">
-            {% block artists %}
-            {% endblock artists %}
+            <h2>Artists</h2>
+            <ul class="nav nav-sidebar">
+            {% for artist in artists %}
+                {% ifchanged %}</ul>{{ artist.sortname.0 }}<ul>{% endifchanged %}
+                <li><a href="{{ artist.get_absolute_url }}">{{ artist.name }}</a></li>
+            {% endfor %}
+            </ul>
         </div> 
 
         <div class="col-sm-6 col-md-6" id="content-container">
