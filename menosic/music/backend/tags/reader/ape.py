@@ -1,5 +1,6 @@
-from mutagenx.monkeysaudio import  MonkeysAudio
+from mutagenx.monkeysaudio import MonkeysAudio
 from music.backend.tags import reader
+
 
 class Track(reader.Track):
     filetype = 'ape'

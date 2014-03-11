@@ -1,54 +1,52 @@
-import mimetypes
-import subprocess
-import os
 import json
-
-from django.views.generic import ListView, DetailView, View, TemplateView
-from django.views.generic.detail import SingleObjectMixin, BaseDetailView
+import os
+import subprocess
+from django.conf import settings
 from django.http import HttpResponse, StreamingHttpResponse
 from django.utils.http import urlsafe_base64_decode
-#from django.core.servers.basehttp import FileWrapper
-from django.conf import settings
+from django.views.generic import DetailView, View, TemplateView
+from django.views.generic.detail import SingleObjectMixin, BaseDetailView
+from music import helpers, models
+from music.backend import files as files_backend
 
-from music import models
-from music import helpers
 
 # browse views
 class ArtistDetailView(DetailView):
     model = models.Artist
 
+
 class AlbumDetailView(DetailView):
     model = models.Album
+
 
 class TrackDetailView(DetailView):
     model = models.Track
 
+
 class BrowseView(TemplateView):
     template_name = 'music/browse.html'
+
     def get_context_data(self, collection, path, **kwargs):
         path = urlsafe_base64_decode(path).decode('utf-8')
 
         collection = models.Collection.objects.get(pk=collection)
-        dirs, files = helpers.items_for_path(collection, path)
-        
-        print(files)
+        dirs, files = files_backend.items_for_path(collection, path)
+
         return {
-                'title': os.path.basename(path),
-                'dirs': dirs,
-                'files': files,
-            }
+            'title': os.path.basename(path),
+            'dirs': dirs,
+            'files': files}
+
 
 # playlist view
 class PlayerMixin(object):
     template_name = 'music/playlist.html'
 
-
     def get_context_data(self, **kwargs):
         player = helpers.player_for_user(self.request.user)
         context_data = {
             'playlist': self.update_playlist(player.playlist),
-            'current': self.get_current_track(),
-        }
+            'current': self.get_current_track()}
         context_data.update(kwargs)
         return context_data
 
@@ -72,6 +70,7 @@ class PlayAlbumTrack(PlayerMixin, DetailView):
     def get_current_track(self):
         return self.object
 
+
 class AddAlbumToPlaylist(PlayerMixin, DetailView):
     model = models.Album
 
@@ -79,9 +78,13 @@ class AddAlbumToPlaylist(PlayerMixin, DetailView):
         playlist.add_tracks(self.object.track_set.all())
         return playlist
 
+
 class JSONResponseMixin(object):
     def render_to_response(self, context):
-        return HttpResponse(json.dumps(context), content_type='application/json')
+        return HttpResponse(
+            json.dumps(context),
+            content_type='application/json')
+
 
 class PlayerJSON(JSONResponseMixin, BaseDetailView):
     model = models.Player
@@ -97,12 +100,10 @@ class PlayerJSON(JSONResponseMixin, BaseDetailView):
             'title': pt.track.title,
             'album': pt.track.album.title,
             'artist': pt.track.artist
-            #} for track in self.get_object().playlist.tracks.all()]
             } for pt in playlist.tracks]
         context_data = {
             'playlist': tracks,
         }
-        #context_data.update(kwargs)
         return context_data
 
 
@@ -121,7 +122,7 @@ class TrackView(SingleObjectMixin, View):
         response = HttpResponse(content_type=self.get_content_type())
         response['Content-Length'] = os.path.getsize(self.track.path)
         if settings.DEBUG:
-            response.write(open(self.track.path, 'rb').read()) # FileWrapper?
+            response.write(open(self.track.path, 'rb').read())
         else:
             response['X-Accel-Redirect'] = self.track.path
         return response
@@ -134,6 +135,7 @@ class TrackView(SingleObjectMixin, View):
             cmd = ["lame", "--silent", "--decode", self.track.path, "-"]
         else:
             cmd = ["ffmpeg", "-i", self.track.path, "-v", "0", "-f", "wav", "-"]
+
         stream_in = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
         # output
@@ -141,8 +143,11 @@ class TrackView(SingleObjectMixin, View):
             cmd = ["lame", "--silent", "-h", "-b", "192", "-"]
         elif self.output == 'ogg':
             cmd = ["oggenc", "--quiet", "-q", "3", "-"]
-        stream_out = subprocess.Popen(cmd,
-            stdin=stream_in.stdout, stdout=subprocess.PIPE)
+
+        stream_out = subprocess.Popen(
+            cmd,
+            stdin=stream_in.stdout,
+            stdout=subprocess.PIPE)
 
         def yield_and_cleanup(p_out, p_in):
             try:
@@ -152,7 +157,9 @@ class TrackView(SingleObjectMixin, View):
                 p_out.communicate()
                 p_in.communicate()
 
-        return StreamingHttpResponse(yield_and_cleanup(stream_out, stream_in), content_type=self.get_content_type())
+        return StreamingHttpResponse(
+            yield_and_cleanup(stream_out, stream_in),
+            content_type=self.get_content_type())
 
     def get(self, request, *args, **kwargs):
         self.track = self.get_object()
@@ -163,4 +170,3 @@ class TrackView(SingleObjectMixin, View):
             return self.serve_directly()
         else:
             return self.convert()
-

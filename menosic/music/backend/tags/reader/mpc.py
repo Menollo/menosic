@@ -1,5 +1,6 @@
-from mutagenx.musepack import  Musepack
+from mutagenx.musepack import Musepack
 from music.backend.tags import reader
+
 
 class Track(reader.Track):
     filetype = 'mpc'

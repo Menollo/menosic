@@ -1,5 +1,6 @@
-from music import models
 from django.core.management.base import BaseCommand
+from music import models
+
 
 class Command(BaseCommand):
     def handle(self, *args, **options):

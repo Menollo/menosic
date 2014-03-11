@@ -6,7 +6,7 @@
 </ul>
 
 <ul>
-{% for item in files %}
-    <li><a class="to_playlist" href="{{ item.get_absolute_url }}">{{ item.title }}</a></li>
+{% for track in files %}
+    <li><a class="to_playlist" href="{{ track.get_absolute_url }}">{{ track.tag.tracknumber }} - {{ track.tag.title }} ({{ track.tag.duration }})</a></li>
 {% endfor %}
 </ul>

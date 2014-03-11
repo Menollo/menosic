@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class UUIDField(models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs.update({

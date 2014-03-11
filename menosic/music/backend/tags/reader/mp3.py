@@ -1,6 +1,7 @@
 from mutagenx.mp3 import MP3
 from music.backend.tags import reader
 
+
 class Track(reader.Track):
     filetype = 'mp3'
 

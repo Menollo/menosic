@@ -73,11 +73,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        #'ENGINE': 'django.db.backends.mysql',
-        #'NAME': 'menosic',
-        #'USER': 'menosic',
-        #'PASSWORD': '<s56p6Z/!o$z$Z9ut$GyEHl>VDYxxRZ[',
-        #'HOST': '/var/run/mysqld/mysqld.sock',
     }
 }
 
@@ -101,8 +96,6 @@ USE_TZ = False
 STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = '/'
-
-MUSIC_DIR = '/srv/safe/Muziek/Jacco/'
 
 # Text to use for obligated fields (None is strickt mode, raises exception on missing information)
 UNKNOWN_TEXT = 'Unknown'

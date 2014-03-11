@@ -1,6 +1,8 @@
-import os
-import importlib
 from datetime import datetime
+import importlib
+import os
+from music import helpers
+
 
 def File(f):
     ext = os.path.splitext(f)[1].lower()
@@ -11,11 +13,9 @@ def File(f):
         except ImportError:
             pass
 
-    print('Unknown filetype %s' % ext)
-    return None
 
 class Track(object):
-    filetype = None # string
+    filetype = None  # string
 
     def __init__(self, path):
         self.path = path
@@ -23,37 +23,41 @@ class Track(object):
         self.mtime = datetime.fromtimestamp(stat.st_mtime)
         self.filesize = stat.st_size
 
-        self.discnumber = None # int
-        self.tracknumber = None # int
-        self.title = None # string
-        self.album = None # class
-        self.artists = [] # list classes
-        self.genres = [] # list strings
-        self.length = None # int
-        self.bitrate = None # int
-        self.musicbrainz_trackid = None # uuid/string
-    
+        self.discnumber = None  # int
+        self.tracknumber = None  # int
+        self.title = None  # string
+        self.album = None  # class
+        self.artists = []  # list classes
+        self.genres = []  # list strings
+        self.length = None  # int
+        self.bitrate = None  # int
+        self.musicbrainz_trackid = None  # uuid/string
+
+    @property
+    def duration(self):
+        return helpers.duration(self.length)
+
 
 class Album(object):
     def __init__(self):
-        self.title = None # string
-        self.date = None # string
-        self.country = None # string
-        self.musicbrainz_albumid = None # uuid/string
-        self.musicbrainz_releasegroupid = None # uuid/string
-        self.albumartists = [] # list classes
-        self.labels = [] # list strings
-        self.albumtypes = [] # list strings
-        self.albumstatus = [] # list strings
-        self.path = None # string
+        self.title = None  # string
+        self.date = None  # string
+        self.country = None  # string
+        self.musicbrainz_albumid = None  # uuid/string
+        self.musicbrainz_releasegroupid = None  # uuid/string
+        self.albumartists = []  # list classes
+        self.labels = []  # list strings
+        self.albumtypes = []  # list strings
+        self.albumstatus = []  # list strings
+        self.path = None  # string
 
 
 class Artist(object):
     def __init__(self):
-        self.name = None # string
-        self.sortname = None # string
-        self.musicbrainz_artistid = None # uuid/string
-        self.path = None # string
+        self.name = None  # string
+        self.sortname = None  # string
+        self.musicbrainz_artistid = None  # uuid/string
+        self.path = None  # string
 
 
 # Helper functions
@@ -61,6 +65,7 @@ class Artist(object):
 list_to_item = lambda l: None if not l else l[0]
 item_to_list = lambda i: [] if not i else str(i).split('\x00')
 data = lambda d: None if not d else d.data
+
 
 def number(string):
     try:

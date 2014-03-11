@@ -1,7 +1,9 @@
 from mutagenx.asf import ASF
 from music.backend.tags import reader
 
+
 l = reader.list_to_item
+
 
 class Track(reader.Track):
     filetype = 'wma'

@@ -1,11 +1,10 @@
 import os
 import sys
-
 from django.conf import settings
 from django.db import transaction
-
-from music.backend.tags.reader import File
 from music import models
+from music.backend.tags.reader import File
+
 
 class Scan(object):
     unknown = lambda self, x: x or settings.UNKNOWN_TEXT
@@ -15,31 +14,33 @@ class Scan(object):
 
         # Do a query to initiate a database connection, and ignore unknown characters in id3 tags
         print('Start scanning with already %s tracks registred' % models.Track.objects.count())
-        if sys.version_info < (3, 0): 
+        if sys.version_info < (3, 0):
             from django.db import connection
             connection.connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
         for root, dirs, files in os.walk(collection.location):
             self.handle_folder(root, files)
 
-
     def artists(self, t, _artists):
         for artist in _artists:
             try:
-                a = models.Artist.objects.get(name=self.unknown(artist.name), collection=self.collection)
+                a = models.Artist.objects.get(
+                    name=self.unknown(artist.name),
+                    collection=self.collection)
             except models.Artist.DoesNotExist:
                 try:
                     if artist.musicbrainz_artistid:
-                        a = models.Artist.objects.get(musicbrainz_artistid=artist.musicbrainz_artistid, collection=self.collection)
+                        a = models.Artist.objects.get(
+                            musicbrainz_artistid=artist.musicbrainz_artistid,
+                            collection=self.collection)
                     else:
                         raise models.Artist.DoesNotExist('No musicbrainz artistid')
                 except models.Artist.DoesNotExist:
                     a = models.Artist(
-                            name = self.unknown(artist.name),
-                            sortname = artist.sortname or self.unknown(artist.name),
-                            musicbrainz_artistid = artist.musicbrainz_artistid,
-                            collection = self.collection,
-                        )
+                        name=self.unknown(artist.name),
+                        sortname=artist.sortname or self.unknown(artist.name),
+                        musicbrainz_artistid=artist.musicbrainz_artistid,
+                        collection=self.collection)
                     a.save()
 
             a.genres.add(*self.genres(t.genres))
@@ -63,22 +64,26 @@ class Scan(object):
 
     def album(self, t):
         try:
-            _album = models.Album.objects.get(title=t.album.title, artists__name__in = [self.unknown(a.name) for a in t.album.albumartists], collection=self.collection)
+            _album = models.Album.objects.get(
+                title=t.album.title,
+                artists__name__in=[self.unknown(a.name) for a in t.album.albumartists],
+                collection=self.collection)
         except models.Album.DoesNotExist:
             try:
                 if t.album.musicbrainz_albumid:
-                    _album = models.Album.objects.get(musicbrainz_albumid=t.album.musicbrainz_albumid, collection=self.collection)
+                    _album = models.Album.objects.get(
+                        musicbrainz_albumid=t.album.musicbrainz_albumid,
+                        collection=self.collection)
                 else:
                     raise models.Album.DoesNotExist('No musicbrainz albumid')
             except models.Album.DoesNotExist:
                 _album = models.Album(
-                        title = self.unknown(t.album.title),
-                        date = t.album.date,
-                        country = self.country(t.album.country),
-                        musicbrainz_albumid = t.album.musicbrainz_albumid,
-                        musicbrainz_releasegroupid = t.album.musicbrainz_releasegroupid,
-                        collection = self.collection,
-                    )
+                    title=self.unknown(t.album.title),
+                    date=t.album.date,
+                    country=self.country(t.album.country),
+                    musicbrainz_albumid=t.album.musicbrainz_albumid,
+                    musicbrainz_releasegroupid=t.album.musicbrainz_releasegroupid,
+                    collection=self.collection)
                 _album.save()
 
         _album.artists.add(*self.artists(t, t.album.albumartists))

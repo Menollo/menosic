@@ -1,7 +1,9 @@
 from mutagenx.mp4 import MP4
 from music.backend.tags import reader
 
+
 l = reader.list_to_item
+
 
 class Track(reader.Track):
     filetype = 'm4a'
