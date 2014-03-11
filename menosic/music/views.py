@@ -32,10 +32,18 @@ class BrowseView(TemplateView):
         collection = models.Collection.objects.get(pk=collection)
         dirs, files = files_backend.items_for_path(collection, path)
 
+        crumbs = []
+        for p in path.split('/'):
+            parents = [c.name for c in crumbs]
+            parents.append(p)
+            p = os.path.join(*parents)
+            crumbs.append(files_backend.DirItem(collection, p))
+
         return {
             'title': os.path.basename(path),
             'dirs': dirs,
-            'files': files}
+            'files': files,
+            'crumbs': crumbs}
 
 
 # playlist view

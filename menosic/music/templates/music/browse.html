@@ -1,3 +1,11 @@
+{% for crumb in crumbs %}
+    {% if forloop.last %}
+    {{ crumb.name }}
+    {% else %}
+    <a href="{{ crumb.get_absolute_url }}">{{ crumb.name }}</a> /
+    {% endif %}
+{% endfor %}
+
 <h1>{{ title }}</h1>
 <ul>
 {% for item in dirs %}
