@@ -26,17 +26,53 @@ class DirItem(object):
 
 
 class FileItem(object):
-    def __init__(self, collection, tag):
+    def __init__(self, collection, path, tag=None):
         self.collection = collection
-        self.tag = tag
+        self.path = path
+        if tag:
+            self.tag = tag
+        else:
+            self.tag = reader.File(self.full_path)
+
+    @property
+    def full_path(self):
+        return os.path.join(self.collection.location, self.path)
 
     @property
     def title(self):
         return self.tag.title
 
     @property
+    def artist(self):
+        return ",".join([str(artist.name) for artist in self.tag.artists])
+
+    @property
     def sort(self):
         return self.tag.tracknumber or self.tag.name
+
+    @property
+    def encoded_path(self):
+        return urlsafe_base64_encode(self.path.encode('utf-8', 'ignore')).decode('utf-8')
+
+    def __getattribute__(self, name):
+        try:
+            return super(FileItem, self).__getattribute__(name)
+        except AttributeError:
+            return getattr(self.tag, name)
+
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse(
+            'play_album_files',
+            kwargs={'collection': self.collection.id, 'path': self.encoded_path})
+
+    def get_mp3_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('file', kwargs={'output': 'mp3', 'collection': self.collection.id, 'path': self.encoded_path})
+
+    def get_ogg_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('file', kwargs={'output': 'ogg', 'collection': self.collection.id, 'path': self.encoded_path})
 
 
 def items_for_path(collection, path):
@@ -50,7 +86,7 @@ def items_for_path(collection, path):
         else:
             tag = reader.File(os.path.join(full_path, item))
             if tag:
-                files.append(FileItem(collection, tag))
+                files.append(FileItem(collection, os.path.join(path, item), tag))
     return (
         sorted(dirs, key=lambda i: i.sortname),
         sorted(files, key=lambda i: i.sort))

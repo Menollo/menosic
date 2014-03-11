@@ -9,7 +9,7 @@
 </thead>
 <tbody>
 {% for pt in playlist.tracks %}
-    <tr id="{{ pt.identifier }}" {% if pt.track.id == current.id %}class="playing"{% endif %}>
+    <tr id="{{ pt.identifier }}" {% if pt.identifier == current %}class="playing"{% endif %}>
         <td><a mp3="{{ pt.track.get_mp3_url }}" ogg="{{ pt.track.get_ogg_url }}">{{ pt.track.title }}</a></td>
         <td>{{ pt.track.artist }}</td>
         <td>{{ pt.track.album.title }}</td>

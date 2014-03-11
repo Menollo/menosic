@@ -44,17 +44,35 @@ class PlayerMixin(object):
 
     def get_context_data(self, **kwargs):
         player = helpers.player_for_user(self.request.user)
+        playlist = self.update_playlist(player.playlist)
         context_data = {
-            'playlist': self.update_playlist(player.playlist),
-            'current': self.get_current_track()}
+            'playlist': playlist,
+            'current': self.get_current(playlist)}
         context_data.update(kwargs)
         return context_data
 
     def update_playlist(self, playlist):
         return playlist
 
-    def get_current_track(self):
+    def get_current(playlist):
         return None
+
+
+class PlayAlbumFiles(PlayerMixin, TemplateView):
+    def update_playlist(self, playlist):
+        collection = models.Collection.objects.get(pk=self.kwargs['collection'])
+        path = urlsafe_base64_decode(self.kwargs['path']).decode('utf-8')
+
+        tracks = files_backend.items_for_path(collection, os.path.dirname(path))[1]
+
+        playlist.empty()
+        playlist.add_file_tracks(tracks)
+        playlist.save()
+
+        return playlist
+
+    def get_current(self, playlist):
+        return self.kwargs['path']
 
 
 class PlayAlbumTrack(PlayerMixin, DetailView):
@@ -62,20 +80,20 @@ class PlayAlbumTrack(PlayerMixin, DetailView):
 
     def update_playlist(self, playlist):
         playlist.empty()
-        playlist.add_tracks(self.object.album.track_set.all())
+        playlist.add_tag_tracks(self.object.album.track_set.all())
         playlist.save()
 
         return playlist
 
-    def get_current_track(self):
-        return self.object
+    def get_current(self, playlist):
+        return playlist.tracks.get(tags_track=self.object).identifier
 
 
 class AddAlbumToPlaylist(PlayerMixin, DetailView):
     model = models.Album
 
     def update_playlist(self, playlist):
-        playlist.add_tracks(self.object.track_set.all())
+        playlist.add_tag_tracks(self.object.track_set.all())
         return playlist
 
 
@@ -108,8 +126,8 @@ class PlayerJSON(JSONResponseMixin, BaseDetailView):
 
 
 # Serve the track files
-class TrackView(SingleObjectMixin, View):
-    model = models.Track
+class ServeFileMixin(object):
+
     output = 'mp3'
 
     def get_content_type(self):
@@ -120,21 +138,21 @@ class TrackView(SingleObjectMixin, View):
 
     def serve_directly(self):
         response = HttpResponse(content_type=self.get_content_type())
-        response['Content-Length'] = os.path.getsize(self.track.path)
+        response['Content-Length'] = os.path.getsize(self.track.full_path)
         if settings.DEBUG:
-            response.write(open(self.track.path, 'rb').read())
+            response.write(open(self.track.full_path, 'rb').read())
         else:
-            response['X-Accel-Redirect'] = self.track.path
+            response['X-Accel-Redirect'] = self.track.full_path
         return response
 
     def convert(self):
         # input
         if self.track.filetype == 'flac':
-            cmd = ["flac", "--silent", "--decode", "--stdout", self.track.path]
+            cmd = ["flac", "--silent", "--decode", "--stdout", self.track.full_path]
         elif self.track.filetype == 'mp3':
-            cmd = ["lame", "--silent", "--decode", self.track.path, "-"]
+            cmd = ["lame", "--silent", "--decode", self.track.full_path, "-"]
         else:
-            cmd = ["ffmpeg", "-i", self.track.path, "-v", "0", "-f", "wav", "-"]
+            cmd = ["ffmpeg", "-i", self.track.full_path, "-v", "0", "-f", "wav", "-"]
 
         stream_in = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 
@@ -170,3 +188,14 @@ class TrackView(SingleObjectMixin, View):
             return self.serve_directly()
         else:
             return self.convert()
+
+
+class FileView(ServeFileMixin, View):
+    def get_object(self):
+        collection = models.Collection.objects.get(pk=self.kwargs['collection'])
+        path = urlsafe_base64_decode(self.kwargs['path']).decode('utf-8')
+        return files_backend.FileItem(collection, path)
+
+
+class TrackView(SingleObjectMixin, ServeFileMixin, View):
+    model = models.Track

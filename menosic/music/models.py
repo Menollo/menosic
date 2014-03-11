@@ -123,6 +123,10 @@ class Track(models.Model):
             ('collection', 'path'),)
 
     @property
+    def full_path(self):
+        return os.path
+
+    @property
     def artist(self):
         return ", ".join([a.name for a in self.artists.all()])
 
@@ -159,30 +163,58 @@ class Playlist(models.Model):
     def empty(self):
         self.playlisttrack_set.all().delete()
 
-    def add_tracks(self, qs):
+    def add_file_tracks(self, tracks):
         last = PlaylistTrack.objects.last()
         last_sort = last.sort_order if last else 0
 
         PlaylistTrack.objects.bulk_create(
             [PlaylistTrack(
                 playlist_id=self.id,
-                track_id=track.id,
-                sort_order=last_sort+counter)
+                file_path=track.path,
+                sort_order=last_sort+counter,
+                collection_id=track.collection.id)
+                for counter, track in enumerate(tracks, start=1)]
+        )
+
+    def add_tag_tracks(self, qs):
+        last = PlaylistTrack.objects.last()
+        last_sort = last.sort_order if last else 0
+
+        PlaylistTrack.objects.bulk_create(
+            [PlaylistTrack(
+                playlist_id=self.id,
+                tags_track_id=track.id,
+                sort_order=last_sort+counter,
+                collection_id=track.collection.id)
                 for counter, track in enumerate(qs, start=1)]
         )
 
 
 class PlaylistTrack(models.Model):
     playlist = models.ForeignKey(Playlist)
-    track = models.ForeignKey(Track)
+    tags_track = models.ForeignKey(Track, null=True)
+    file_path = models.CharField(max_length=255, null=True)
     sort_order = models.IntegerField()
+    collection = models.ForeignKey(Collection)
 
     class Meta:
         ordering = ['sort_order']
 
     @property
+    def track(self):
+        if self.tags_track:
+            return self.tags_track
+        elif self.file_path:
+            from music.backend import files as files_backend
+            return files_backend.FileItem(self.collection, self.file_path)
+            #return reader.File(os.path.join(self.collection.path, self.file_path))
+
+    @property
     def identifier(self):
-        return "%s_%s" % (self.id, self.track_id)
+        if self.tags_track:
+            return "%s_%s" % (self.id, self.tags_track_id)
+        elif self.file_path:
+            return self.track.encoded_path
 
     def safe(self, *args, **kwargs):
         if not self.sort_order:

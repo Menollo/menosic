@@ -14,9 +14,11 @@ urlpatterns = patterns('',
     url(r'^track/(?P<pk>\d+)/$', views.TrackDetailView.as_view(), name='track_detail'),
 
     url(r'^play_album_track/(?P<pk>\d+)/$', views.PlayAlbumTrack.as_view(), name='play_album_track'),
+    url(r'^play_album_files/(?P<collection>\d+)/(?P<path>\w+)/$', views.PlayAlbumFiles.as_view(), name='play_album_files'),
     url(r'^add_album/(?P<pk>\d+)/$', views.AddAlbumToPlaylist.as_view(), name='add_album'),
     url(r'^external/(?P<pk>\d+)/$', views.PlayerJSON.as_view(), name='external'),
 
     url(r'^file/(?P<pk>\d+)/$', views.TrackView.as_view(), name='track'),
     url(r'^file/(?P<output>\w+)/(?P<pk>\d+)/$', views.TrackView.as_view(), name='track'),
+    url(r'^file/(?P<output>\w+)/(?P<collection>\d+)/(?P<path>\w+)/$', views.FileView.as_view(), name='file'),
 )
