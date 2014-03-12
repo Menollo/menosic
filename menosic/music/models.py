@@ -124,7 +124,7 @@ class Track(models.Model):
 
     @property
     def full_path(self):
-        return os.path
+        return self.path
 
     @property
     def artist(self):
