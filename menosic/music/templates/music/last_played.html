@@ -1,0 +1,11 @@
+<h3>Last played</h3>
+
+{% for last_played in object_list %}
+<p><b>{{ last_played.user }}</b></p>
+<p>
+{{ last_played.track.artist }}<br/>
+{{ last_played.track.title }}
+</p>
+
+<p>{{ last_played.minutes_ago }} minutes ago</p>
+{% endfor %}
