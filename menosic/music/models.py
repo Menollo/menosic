@@ -1,8 +1,10 @@
+import datetime
 import importlib
 import mimetypes
 from django.contrib.auth.models import User
 from django.db import models
 from music import fields, helpers
+from music.backend import files as files_backend
 
 
 class Collection(models.Model):
@@ -190,24 +192,20 @@ class Playlist(models.Model):
         )
 
 
-class PlaylistTrack(models.Model):
-    playlist = models.ForeignKey(Playlist)
+class BaseTrack(models.Model):
     tags_track = models.ForeignKey(Track, null=True)
     file_path = models.CharField(max_length=255, null=True)
-    sort_order = models.IntegerField()
     collection = models.ForeignKey(Collection)
 
     class Meta:
-        ordering = ['sort_order']
+        abstract = True
 
     @property
     def track(self):
         if self.tags_track:
             return self.tags_track
         elif self.file_path:
-            from music.backend import files as files_backend
             return files_backend.FileItem(self.collection, self.file_path)
-            #return reader.File(os.path.join(self.collection.path, self.file_path))
 
     @property
     def identifier(self):
@@ -216,11 +214,40 @@ class PlaylistTrack(models.Model):
         elif self.file_path:
             return self.track.encoded_path
 
+    def set_track(self, track):
+        if type(track) == Track:
+            self.tags_track = track
+        else:
+            self.file_path = track.path
+
+        self.collection = track.collection
+
+
+class PlaylistTrack(BaseTrack):
+    playlist = models.ForeignKey(Playlist)
+    sort_order = models.IntegerField()
+
+    class Meta:
+        ordering = ['sort_order']
+
     def safe(self, *args, **kwargs):
         if not self.sort_order:
             last = PlaylistTrack.objects.last()
             self.sort_order = last.sort_order + 1 if last else 1
         super(PlaylistTrack, self).save(*args, **kwargs)
+
+
+class LastPlayed(BaseTrack):
+    user = models.ForeignKey(User)
+    time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-time']
+
+    @property
+    def minutes_ago(self):
+        delta = datetime.datetime.now() - self.time
+        return int(delta.seconds / 60)
 
 
 class Player(models.Model):

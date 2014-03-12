@@ -33,3 +33,14 @@ def artists():
     artists = sorted(artists, key=lambda a: a.sortname)
 
     return artists
+
+
+def register_playback(track, user):
+    if user.is_authenticated():
+        from music.models import LastPlayed
+        try:
+            last = LastPlayed.objects.get(user=user)
+        except LastPlayed.DoesNotExist:
+            last = LastPlayed(user=user)
+        last.set_track(track)
+        last.save()

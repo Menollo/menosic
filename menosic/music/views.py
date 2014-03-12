@@ -1,10 +1,11 @@
+import datetime
 import json
 import os
 import subprocess
 from django.conf import settings
 from django.http import HttpResponse, StreamingHttpResponse
 from django.utils.http import urlsafe_base64_decode
-from django.views.generic import DetailView, View, TemplateView
+from django.views.generic import DetailView, View, TemplateView, ListView
 from django.views.generic.detail import SingleObjectMixin, BaseDetailView
 from music import helpers, models
 from music.backend import files as files_backend
@@ -62,7 +63,7 @@ class PlayerMixin(object):
     def update_playlist(self, playlist):
         return playlist
 
-    def get_current(playlist):
+    def get_current(self, playlist):
         return None
 
 
@@ -189,6 +190,9 @@ class ServeFileMixin(object):
 
     def get(self, request, *args, **kwargs):
         self.track = self.get_object()
+
+        helpers.register_playback(self.track, request.user)
+
         if 'output' in kwargs:
             self.output = kwargs['output']
 
@@ -207,3 +211,11 @@ class FileView(ServeFileMixin, View):
 
 class TrackView(SingleObjectMixin, ServeFileMixin, View):
     model = models.Track
+
+
+class LastPlayedView(ListView):
+    template_name = 'music/last_played.html'
+
+    def get_queryset(self):
+        some_time_ago = datetime.datetime.now()-datetime.timedelta(minutes=15)
+        return models.LastPlayed.objects.filter(time__gt=some_time_ago)

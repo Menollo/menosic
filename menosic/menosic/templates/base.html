@@ -100,6 +100,7 @@ function link_to_player() {
     $('.playing').removeClass('playing');
     $(this).parent('td').parent('tr').addClass('playing');
     play_selected();
+    setTimeout('update_last_played()', 3000)
     return false;
 }
 function link_to_playlist() {
@@ -129,11 +130,18 @@ function link_to_content() {
     });
     return false;
 }
+function update_last_played() {
+    $.get('/last_played/', function(data) {
+        $('#last_played').html(data);
+    });
+}
 
 $(document).ready(function() {
     $('#artists a').click(link_to_content);
     $('#playlist a').click(link_to_player);
     $('#player').bind('ended', play_next);
+    setInterval(update_last_played, 30000);
+    update_last_played();
 });
 
 </script>
@@ -175,6 +183,8 @@ $(document).ready(function() {
         </div>
         <div class="col-sm-3 col-md-3 padding" id="meta">
             <h2>Meta</h2>
+            <div id="last_played">
+            </div>
         </div>
 
     </div>
