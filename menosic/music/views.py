@@ -123,9 +123,9 @@ class PlayerJSON(JSONResponseMixin, BaseDetailView):
             'mp3': pt.track.get_mp3_url(),
             'ogg': pt.track.get_ogg_url(),
             'length': pt.track.length,
-            'title': pt.track.title,
-            'album': pt.track.album.title,
-            'artist': pt.track.artist
+            'title': str(pt.track.title),
+            'album': str(pt.track.album.title),
+            'artist': str(pt.track.artist)
             } for pt in playlist.tracks]
         context_data = {
             'playlist': tracks,

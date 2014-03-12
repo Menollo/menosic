@@ -40,7 +40,7 @@ class FileItem(object):
 
     @property
     def title(self):
-        return self.tag.title
+        return str(self.tag.title)
 
     @property
     def artist(self):
