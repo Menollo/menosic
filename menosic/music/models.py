@@ -227,7 +227,9 @@ class BaseTrack(models.Model):
     def set_track(self, track):
         if type(track) == Track:
             self.tags_track = track
+            self.file_path = None
         else:
+            self.tags_track = None
             self.file_path = track.path
 
         self.collection = track.collection
