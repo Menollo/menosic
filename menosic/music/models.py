@@ -169,6 +169,11 @@ class Playlist(models.Model):
         last = PlaylistTrack.objects.last()
         last_sort = last.sort_order if last else 0
 
+        try:
+            tracks = iter(tracks)
+        except TypeError:
+            tracks = [tracks]
+
         PlaylistTrack.objects.bulk_create(
             [PlaylistTrack(
                 playlist_id=self.id,
@@ -178,9 +183,14 @@ class Playlist(models.Model):
                 for counter, track in enumerate(tracks, start=1)]
         )
 
-    def add_tag_tracks(self, qs):
+    def add_tag_tracks(self, tracks):
         last = PlaylistTrack.objects.last()
         last_sort = last.sort_order if last else 0
+
+        try:
+            tracks = iter(tracks)
+        except TypeError:
+            tracks = [tracks]
 
         PlaylistTrack.objects.bulk_create(
             [PlaylistTrack(
@@ -188,7 +198,7 @@ class Playlist(models.Model):
                 tags_track_id=track.id,
                 sort_order=last_sort+counter,
                 collection_id=track.collection.id)
-                for counter, track in enumerate(qs, start=1)]
+                for counter, track in enumerate(tracks, start=1)]
         )
 
 

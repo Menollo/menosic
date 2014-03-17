@@ -3,8 +3,10 @@
 {% for last_played in object_list %}
 <p><b>{{ last_played.user }}</b></p>
 <p>
+<a href="{{ last_played.track.album.get_absolute_url }}" class="to_content">
 {{ last_played.track.artist }}<br/>
 {{ last_played.track.title }}
+</a>
 </p>
 
 <p>{{ last_played.minutes_ago }} minutes ago</p>

@@ -1,16 +1,31 @@
 <a href="{{ album.artists.all.0.get_absolute_url }}">{{ album.artists.all.0.name }}</a> / {{ album.title }}
 
 <h1>{{ album.title }}</h1>
-<p><a class="to_playlist" href="{% url 'add_album' album.id %}">+ add to playlist</a></p>
-<ul>
+<p><a class="to_playlist" href="{% url 'add_album' album.id %}">+ add album to playlist</a></p>
+
+
+<table class="table table-hover">
+<thead>
+    <tr>
+        <th>Add</th>
+        <th>#</th>
+        <th>Title</th>
+        <th>Duration</th>
+    </tr>
+</thead>
+<tbody>
 {% for track in album.track_set.all %}
-    {% ifchanged %}
-        </ul>
-        <h2>Disc {{ track.discnumber }}</h2>
-        <ul>
+    {% ifchanged track.discnumber %}
+    <tr>
+        <th colspan="4">Disc {{ track.discnumber }}</th>
+    </tr>
     {% endifchanged %}
-    <li><a class="to_playlist" href="{% url 'play_album_track' track.id %}">{{ track.tracknumber }} - {{ track.title }} ({{ track.duration }})</a></li>
-{% empty %}
-    <li>No tracks for {{ album.name }}.</li>
+    <tr>
+        <td><a class="to_playlist" href="{% url 'add_track' track.id %}">+ add</a></td>
+        <td>{{ track.tracknumber }}</td>
+        <td><a class="to_playlist" href="{% url 'play_album_track' track.id %}">{{ track.title }}</a>
+        <td>{{ track.duration }}</td>
+    </tr>
 {% endfor %}
-</ul>
+</tbody>
+</table>

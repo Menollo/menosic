@@ -133,6 +133,7 @@ function link_to_content() {
 function update_last_played() {
     $.get('/last_played/', function(data) {
         $('#last_played').html(data);
+        $('#meta a.to_content').click(link_to_content);
     });
 }
 

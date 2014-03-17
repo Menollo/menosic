@@ -106,6 +106,14 @@ class AddAlbumToPlaylist(PlayerMixin, DetailView):
         return playlist
 
 
+class AddTrackToPlaylist(PlayerMixin, DetailView):
+    model = models.Track
+
+    def update_playlist(self, playlist):
+        playlist.add_tag_tracks(self.object)
+        return playlist
+
+
 class JSONResponseMixin(object):
     def render_to_response(self, context):
         return HttpResponse(
