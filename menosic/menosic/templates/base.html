@@ -81,8 +81,8 @@
 function play_selected() {
     player = $('#player').get(0);
     player.pause();
-    $('#player source#mp3').attr('src', $("#playlist .playing a").attr("mp3"));
-    $('#player source#ogg').attr('src', $("#playlist .playing a").attr("ogg"));
+    $('#player source#mp3').attr('src', $("#playlist .playing a.to_player").attr("mp3"));
+    $('#player source#ogg').attr('src', $("#playlist .playing a.to_player").attr("ogg"));
     $('#player').attr('playlist_id', $('#playlist .playing').attr('id'));
     player.load();
     player.play();
@@ -116,7 +116,8 @@ function link_to_playlist() {
                 player.pause();
             }
         }
-        $('#playlist a').click(link_to_player);
+        $('#playlist a.to_playlist').click(link_to_playlist);
+        $('#playlist a.to_player').click(link_to_player);
     });
     return false;
 }
@@ -139,7 +140,8 @@ function update_last_played() {
 
 $(document).ready(function() {
     $('#artists a').click(link_to_content);
-    $('#playlist a').click(link_to_player);
+    $('#playlist a.to_player').click(link_to_player);
+    $('#playlist a.to_playlist').click(link_to_playlist);
     $('#player').bind('ended', play_next);
     setInterval(update_last_played, 30000);
     update_last_played();

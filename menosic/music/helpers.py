@@ -44,3 +44,14 @@ def register_playback(track, user):
             last = LastPlayed(user=user)
         last.set_track(track)
         last.save()
+
+
+def swap_playlist_tracks(a, b):
+    sort_a = a.sort_order
+    sort_b = b.sort_order
+
+    a.sort_order = sort_b
+    b.sort_order = sort_a
+
+    a.save()
+    b.save()

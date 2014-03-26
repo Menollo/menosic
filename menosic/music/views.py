@@ -114,6 +114,25 @@ class AddTrackToPlaylist(PlayerMixin, DetailView):
         return playlist
 
 
+class PlaylistTrack(PlayerMixin, DetailView):
+    model = models.PlaylistTrack
+
+    def update_playlist(self, playlist):
+        action = self.kwargs['action']
+        track = self.get_object()
+
+        if action == 'remove':
+            playlist.tracks.get(pk=track.pk).delete()
+        elif action == 'up':
+            prev = playlist.tracks.filter(sort_order__lt=track.sort_order).order_by('-sort_order')[0]
+            helpers.swap_playlist_tracks(track, prev)
+        elif action == 'down':
+            next = playlist.tracks.filter(sort_order__gt=track.sort_order)[0]
+            helpers.swap_playlist_tracks(track, next)
+
+        return models.Playlist.objects.get(pk=playlist.pk)
+
+
 class JSONResponseMixin(object):
     def render_to_response(self, context):
         return HttpResponse(

@@ -1,6 +1,7 @@
 <table class="table table-hover">
 <thead>
     <tr>
+        <th></th>
         <th>Title</th>
         <th>Artist</th>
         <th>Album</th>
@@ -10,7 +11,12 @@
 <tbody>
 {% for pt in playlist.tracks %}
     <tr id="{{ pt.identifier }}" {% if pt.identifier == current %}class="playing"{% endif %}>
-        <td><a mp3="{{ pt.track.get_mp3_url }}" ogg="{{ pt.track.get_ogg_url }}">{{ pt.track.title }}</a></td>
+        <td>
+            <a class="to_playlist" href="{% url 'edit_playlist_track' pt.id 'remove' %}">&minus;</a>
+            <a class="to_playlist" href="{% url 'edit_playlist_track' pt.id 'up' %}">&uarr;</a>
+            <a class="to_playlist" href="{% url 'edit_playlist_track' pt.id 'down' %}">&darr;</a>
+        </td>
+        <td><a class="to_player" mp3="{{ pt.track.get_mp3_url }}" ogg="{{ pt.track.get_ogg_url }}">{{ pt.track.title }}</a></td>
         <td>{{ pt.track.artist }}</td>
         <td>{{ pt.track.album.title }}</td>
         <td>{{ pt.track.duration }}</td>
