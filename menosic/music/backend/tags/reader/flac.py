@@ -14,8 +14,8 @@ class Track(reader.Track):
         f = self.flac
 
         self.title = l(f.get('title'))
-        self.discnumber = l(f.get('discnumber'))
-        self.tracknumber = l(f.get('tracknumber'))
+        self.discnumber = reader.number(l(f.get('discnumber')))
+        self.tracknumber = reader.number(l(f.get('tracknumber')))
         self.length = int(f.info.length)
         #self.bitrate
 
