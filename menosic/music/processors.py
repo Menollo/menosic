@@ -1,3 +1,5 @@
+import string
+
 from music import helpers
 
 
@@ -9,4 +11,5 @@ def playlist(request):
 
 
 def artists(request):
-    return {'artists': helpers.artists()}
+    return {'artists': helpers.artists(),
+            'letters': string.ascii_uppercase}
