@@ -75,13 +75,20 @@
     font-size: 12px;
     text-align: center;
     padding: 10px 0px;
-    margin-left: -5px;
+    margin-left: -15px;
 }
-#navigation a {
+#navigation li a {
     width: 100%;
     text-align: center;
+    padding: 3px 0px;
     display: block;
-    line-height: 20px;
+}
+#navigation li a:hover {
+    background: #afafaf;
+}
+#navigation li.active > a {
+    background: #aaaaaa;
+    font-weight: 400;
 }
 @media (max-width: 767px) {
     #meta {
@@ -180,9 +187,11 @@ $(document).ready(function() {
     <div class="row">
         <div class="col-sm-3 col-md-3" id="artists" data-spy="scroll" data-target="#navigation">
             <div id="navigation" class="affix">
+              <ul class="nav">
               {% for letter in letters %}
-                  <a href="#{{ letter }}">{{ letter }}</a>
+                <li><a href="#{{ letter }}">{{ letter }}</a></li>
               {% endfor %}
+              </ul>
             </div>
             <div id="artists-list">
               <h2>Artists</h2>
@@ -190,8 +199,7 @@ $(document).ready(function() {
                 {% for artist in artists %}
                 {% ifchanged %}
                     </ul>
-                    <a name="{{ artist.sortname.0 }}"></a>
-                    {{ artist.sortname.0 }}
+                    <span id="{{ artist.sortname.0 }}">{{ artist.sortname.0 }}</span>
                     <ul>
                 {% endifchanged %}
                 <li><a href="{{ artist.get_absolute_url }}">{{ artist.name }}</a></li>
