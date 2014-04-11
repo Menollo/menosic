@@ -246,3 +246,17 @@ class LastPlayedView(ListView):
     def get_queryset(self):
         some_time_ago = datetime.datetime.now()-datetime.timedelta(minutes=15)
         return models.LastPlayed.objects.filter(time__gt=some_time_ago)
+
+class CoverFileView(BaseDetailView):
+    model = models.Album
+
+    def render_to_response(self, request):
+        cover_path = self.object.cover
+
+        response = HttpResponse(content_type='image/jpeg')
+        response['Content-Length'] = os.path.getsize(cover_path)
+        if settings.DEBUG:
+            response.write(open(cover_path, 'rb').read())
+        else:
+            response['X-Accel-Redirect'] = cover_path
+        return response

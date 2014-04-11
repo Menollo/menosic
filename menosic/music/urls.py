@@ -24,4 +24,6 @@ urlpatterns = patterns('',
     url(r'^file/(?P<pk>\d+)/$', views.TrackView.as_view(), name='track'),
     url(r'^file/(?P<output>\w+)/(?P<pk>\d+)/$', views.TrackView.as_view(), name='track'),
     url(r'^file/(?P<output>\w+)/(?P<collection>\d+)/(?P<path>\w+)/$', views.FileView.as_view(), name='file'),
+
+    url(r'^cover/(?P<pk>\d+)/$', views.CoverFileView.as_view(), name='cover'),
 )

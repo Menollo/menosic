@@ -1,3 +1,4 @@
+import os
 import datetime
 import importlib
 import mimetypes
@@ -101,6 +102,21 @@ class Album(models.Model):
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('album_detail', args=[self.pk])
+
+    @property
+    def cover(self):
+        if self.path:
+            path = self.path
+        else:
+            try:
+                first_track = self.track_set.all()[0]
+            except IndexError:
+                return None
+            path = os.path.dirname(first_track.path)
+
+        c = os.path.join(path, 'cover.jpg')
+        if os.path.isfile(c):
+            return c
 
 
 class Track(models.Model):
