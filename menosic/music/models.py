@@ -118,6 +118,10 @@ class Album(models.Model):
         if os.path.isfile(c):
             return c
 
+    def get_cover_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('cover', args=[self.pk])
+
 
 class Track(models.Model):
     discnumber = models.PositiveIntegerField(null=True)
