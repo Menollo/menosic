@@ -1,6 +1,13 @@
 <a href="{{ album.artists.all.0.get_absolute_url }}">{{ album.artists.all.0.name }}</a> / {{ album.title }}
 
-<h1>{{ album.title }}</h1>
+<div class="album">
+  {% if album.cover %}
+  <div class="album-cover">
+    <img src="{% url 'cover' album.pk %}">
+  </div>
+  {% endif %}
+  <h1>{{ album.title }}</h1>
+</div>
 <p><a class="to_playlist" href="{% url 'add_album' album.id %}">+ add album to playlist</a></p>
 
 
