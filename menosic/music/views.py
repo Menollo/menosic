@@ -3,7 +3,7 @@ import json
 import os
 import subprocess
 from django.conf import settings
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse, StreamingHttpResponse, Http404
 from django.utils.http import urlsafe_base64_decode
 from django.views.generic import DetailView, View, TemplateView, ListView
 from django.views.generic.detail import SingleObjectMixin, BaseDetailView
@@ -252,6 +252,9 @@ class CoverFileView(BaseDetailView):
 
     def render_to_response(self, request):
         cover_path = self.object.cover
+
+        if not cover_path:
+            raise Http404
 
         response = HttpResponse(content_type='image/jpeg')
         response['Content-Length'] = os.path.getsize(cover_path)

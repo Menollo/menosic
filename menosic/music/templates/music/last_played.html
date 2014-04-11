@@ -2,12 +2,18 @@
 
 {% for last_played in object_list %}
 <p><b>{{ last_played.user }}</b></p>
-<p>
-<a href="{{ last_played.track.album.get_absolute_url }}" class="to_content">
-{{ last_played.track.artist }}<br/>
-{{ last_played.track.title }}
-</a>
-</p>
-
-<p>{{ last_played.minutes_ago }} minutes ago</p>
+<div class="last-played-item">
+  <div class="last-played-info">
+    <a href="{{ last_played.track.album.get_absolute_url }}" class="to_content">
+    {{ last_played.track.artist }}<br/>
+    {{ last_played.track.title }}
+    </a>
+  </div>
+  {% if last_played.track.album.cover %}
+    <div class="album-cover">
+      <img src="{% url 'cover' last_played.track.album.pk %}">
+    </div>
+  {% endif %}
+  <p class="clear">{{ last_played.minutes_ago }} minutes ago</p>
+</div>
 {% endfor %}
