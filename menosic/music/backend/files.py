@@ -54,14 +54,11 @@ class FileItem(object):
     def encoded_path(self):
         return urlsafe_base64_encode(self.path.encode('utf-8', 'ignore')).decode('utf-8')
 
-    def __getattribute__(self, name):
-        try:
-            return super(FileItem, self).__getattribute__(name)
-        except AttributeError:
-            attribute = getattr(self.tag, name)
-            if name == 'album':
-                setattr(attribute, 'get_absolute_url', DirItem(self.collection, os.path.dirname(self.path)).get_absolute_url)
-            return attribute
+    def __getattr__(self, name):
+        attribute = getattr(self.tag, name)
+        if name == 'album':
+            setattr(attribute, 'get_absolute_url', DirItem(self.collection, os.path.dirname(self.path)).get_absolute_url)
+        return attribute
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
