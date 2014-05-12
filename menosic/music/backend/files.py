@@ -48,7 +48,7 @@ class FileItem(object):
 
     @property
     def sort(self):
-        return self.tag.tracknumber or self.tag.name
+        return self.tag.tracknumber or self.tag.title or self.tag.path
 
     @property
     def encoded_path(self):
