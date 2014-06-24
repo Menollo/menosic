@@ -1,6 +1,7 @@
 import json
 import threading
 from collections import OrderedDict
+import traceback
 
 import gi
 gi.require_version('Gst', '1.0')
@@ -29,9 +30,9 @@ class Playlist(object):
     def goto_track(self, id):
         # loop from the begining
         self.playlist_iterator = iter(self.tracks.values())
-        self.next()
 
         if id in self.tracks.keys():
+            self.next()
             while self.current['id'] != id:
                 self.next()
             return True
@@ -53,8 +54,6 @@ class Player(object):
     playlist = None
 
     def __init__(self):
-        self.update_playlist()
-
         Gst.init(None)
         self.player = Gst.ElementFactory.make('playbin', 'menosic')
 
@@ -63,19 +62,22 @@ class Player(object):
         self.bus.add_signal_watch()
         self.player.send_event(Gst.Event.new_eos())
 
+        self.update_playlist()
+
     def update_playlist(self):
         current_id = self.playlist.current['id'] if self.playlist else None
 
         data = jsonurl('%s/client/%s/?token=%s' % (settings.SERVER_URI, settings.PLAYER_ID, settings.CLIENT_TOKEN))
         if not self.playlist or [t['id'] for t in data['playlist']] != list(self.playlist.tracks.keys()):
             self.playlist = Playlist(data['playlist'], current_id)
+            if self.player.get_state != Gst.State.PLAYING:
+                if self.playlist.next():
+                    self.play()
 
     def on_eos(self, bus, msg):
-        if not self.playlist.next():
-            self.update_playlist()
-
         self.player.set_state(Gst.State.NULL)
-        self.play()
+        if self.playlist.next():
+            self.play()
 
 
     def play(self):
@@ -94,4 +96,9 @@ loop_thread.start()
 import time
 while True:
     time.sleep(10)
-    pl.update_playlist()
+    try:
+        pl.update_playlist()
+    except:
+        print("Error updating playlist!")
+        traceback.print_exc()
+        pass
