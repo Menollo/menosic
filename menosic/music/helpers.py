@@ -22,15 +22,27 @@ def duration(length):
 def artists():
     # tags backend
     from music.models import Artist, Collection
-    artists = list(Artist.objects.exclude(album=None))
+    artists = Artist.objects.exclude(album=None).values('id', 'name', 'sortname')
+
+    from django.core.urlresolvers import reverse
+    url = reverse('artist_detail', args=(0,))
+
+    def add_url_to_tag_artist(dict_item):
+        #dict_item['url'] = reverse('artist_detail', args=(dict_item['id'],))
+        dict_item['url'] = url.replace('0', str(dict_item['id']))
+        return dict_item
+
+    artists = map(add_url_to_tag_artist, artists)
+
 
     # files backend
-    from music.backend.files import items_for_path
+    from music.backend.files import artists_tuple
 
+    dirs = []
     for collection in Collection.objects.filter(backend='F'):
-        artists += items_for_path(collection, '/')[0]
+        dirs += artists_tuple(collection)
 
-    artists = sorted(artists, key=lambda a: a.sortname)
+    artists = sorted(list(artists) + dirs, key=lambda a: a['sortname'])
 
     return artists
 

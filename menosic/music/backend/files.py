@@ -90,3 +90,25 @@ def items_for_path(collection, path):
     return (
         sorted(dirs, key=lambda i: i.sortname),
         sorted(files, key=lambda i: i.sort))
+
+def artists_tuple(collection):
+    from django.core.urlresolvers import reverse
+    url = reverse(
+        'browse',
+        kwargs={'collection': collection.id, 'path': 'PATH'})
+
+    for item in os.listdir(collection.location):
+
+        if os.path.isdir(os.path.join(collection.location, item)):
+            item = item.encode('utf-8', 'ignore')
+
+            #make url
+            path = urlsafe_base64_encode(item).decode('utf-8')
+
+            name = item.decode('utf-8')
+            yield {
+                    'url': url.replace('PATH', path),
+                    'name': name,
+                    'sortname': name,
+                    'backend': 'file'
+                }
