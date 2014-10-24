@@ -26,4 +26,5 @@ urlpatterns = patterns('',
     url(r'^file/(?P<output>\w+)/(?P<collection>\d+)/(?P<path>\w+)/$', views.FileView.as_view(), name='file'),
 
     url(r'^cover/(?P<pk>\d+)/$', views.CoverFileView.as_view(), name='cover'),
+    url(r'^album/random/$', views.RandomAlbumRedirect.as_view(), name='random_album'),
 )

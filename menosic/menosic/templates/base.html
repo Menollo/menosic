@@ -132,6 +132,9 @@
 #artists-list {
     margin-left: 35px;
 }
+.bottom-buffer {
+    margin-bottom: 5px;
+}
 </style>
 <script>
 function play_selected() {
@@ -195,7 +198,7 @@ function update_last_played() {
 }
 
 $(document).ready(function() {
-    $('#artists-list a').click(link_to_content);
+    $('#artists-list a, #navigation a.external').click(link_to_content);
     $('#playlist a.to_player').click(link_to_player);
     $('#playlist a.to_playlist').click(link_to_playlist);
     $('#player').bind('ended', play_next);
@@ -216,6 +219,7 @@ $(document).ready(function() {
         <div class="col-sm-3 col-md-3" id="artists" data-spy="scroll" data-target="#navigation">
             <div id="navigation" class="affix">
               <ul class="nav">
+                <li class="bottom-buffer"><a class="external" href="{% url "random_album" %}"><i class="glyphicon glyphicon-random"></i></a></li>
               {% for letter in letters %}
                 <li><a href="#{{ letter }}">{{ letter }}</a></li>
               {% endfor %}
