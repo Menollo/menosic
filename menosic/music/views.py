@@ -5,7 +5,9 @@ import subprocess
 from django.conf import settings
 from django.http import HttpResponse, StreamingHttpResponse, Http404
 from django.utils.http import urlsafe_base64_decode
-from django.views.generic import DetailView, View, TemplateView, ListView
+from django.views.generic import (
+    DetailView, View, TemplateView, ListView, RedirectView
+)
 from django.views.generic.detail import SingleObjectMixin, BaseDetailView
 from music import helpers, models
 from music.backend import files as files_backend
@@ -263,3 +265,15 @@ class CoverFileView(BaseDetailView):
         else:
             response['X-Accel-Redirect'] = cover_path
         return response
+
+
+class RandomAlbumRedirect(RedirectView):
+    model = models.Album
+    permanent = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        albums = self.model.objects.order_by('?')
+        if albums.count() > 0:
+            album = albums[0]
+            return album.get_absolute_url()
+        raise Http404
