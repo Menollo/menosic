@@ -277,3 +277,14 @@ class RandomAlbumRedirect(RedirectView):
             album = albums[0]
             return album.get_absolute_url()
         raise Http404
+
+
+class NewAlbumList(ListView):
+    model = models.Album
+    template_name = 'music/new_album_list.html'
+    paginate_by = 12
+    context_object_name = 'new_albums'
+
+    def get_queryset(self):
+        qs = super(NewAlbumList, self).get_queryset()
+        return qs.order_by('-pk')
