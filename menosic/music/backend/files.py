@@ -80,13 +80,14 @@ def items_for_path(collection, path):
     files = []
     path = path[1:] if path[0] == '/' else path
     full_path = os.path.join(collection.location, path)
-    for item in os.listdir(full_path):
-        if os.path.isdir(os.path.join(full_path, item)):
-            dirs.append(DirItem(collection, os.path.join(path, item)))
-        else:
-            tag = reader.File(os.path.join(full_path, item))
-            if tag:
-                files.append(FileItem(collection, os.path.join(path, item), tag))
+    if os.path.lexists(full_path):
+        for item in os.listdir(full_path):
+            if os.path.isdir(os.path.join(full_path, item)):
+                dirs.append(DirItem(collection, os.path.join(path, item)))
+            else:
+                tag = reader.File(os.path.join(full_path, item))
+                if tag:
+                    files.append(FileItem(collection, os.path.join(path, item), tag))
     return (
         sorted(dirs, key=lambda i: i.sortname),
         sorted(files, key=lambda i: i.sort))
@@ -97,18 +98,18 @@ def artists_tuple(collection):
         'browse',
         kwargs={'collection': collection.id, 'path': 'PATH'})
 
-    for item in os.listdir(collection.location):
+    if os.path.lexists(collection.location):
+        for item in os.listdir(collection.location):
+            if os.path.isdir(os.path.join(collection.location, item)):
+                item = item.encode('utf-8', 'ignore')
 
-        if os.path.isdir(os.path.join(collection.location, item)):
-            item = item.encode('utf-8', 'ignore')
+                #make url
+                path = urlsafe_base64_encode(item).decode('utf-8')
 
-            #make url
-            path = urlsafe_base64_encode(item).decode('utf-8')
-
-            name = item.decode('utf-8')
-            yield {
-                    'url': url.replace('PATH', path),
-                    'name': name,
-                    'sortname': name,
-                    'backend': 'file'
-                }
+                name = item.decode('utf-8')
+                yield {
+                        'url': url.replace('PATH', path),
+                        'name': name,
+                        'sortname': name,
+                        'backend': 'file'
+                    }
