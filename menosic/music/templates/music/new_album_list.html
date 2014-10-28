@@ -1,0 +1,39 @@
+<h1>New albums</h1>
+
+{% if not new_albums %}
+<p>No new albums found!</p>
+{% else %}
+<div class="row">
+  {% for album in new_albums %}
+  <div class="new-album-item">
+    <div class="thumbnail">
+      <a href="{{ album.get_absolute_url }}">
+        <img src="{% url 'cover' album.pk %}">
+      </a>
+    </div>
+    <div class="caption">
+      <h3><a href="{{ album.get_absolute_url }}">{{ album.title }} ({{ album.year|default:"????" }})</a></h3>
+      {% for artist in album.artists.all %}
+      <h4><a href="{{ artist.get_absolute_url }}">{{ artist.name }}</a></h4>
+      {% endfor %}
+      <p><a class="to_playlist" href="{% url 'add_album' album.id %}"><i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-th-list"></i></a></p>
+    </div>
+  </div>
+  {% endfor %}
+  {% if is_paginated %}
+     <div class="pagination">
+         <span class="page-links">
+             {% if page_obj.has_previous %}
+                 <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+             {% endif %}
+             <span class="page-current">
+                 Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+             </span>
+             {% if page_obj.has_next %}
+                 <a href="?page={{ page_obj.next_page_number }}">next</a>
+             {% endif %}
+         </span>
+     </div>
+   {% endif %}
+</div>
+{% endif %}

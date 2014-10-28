@@ -135,6 +135,67 @@
 .bottom-buffer {
     margin-bottom: 5px;
 }
+.col-height-1 {
+    height: 390px;
+}
+.col-height-1 img {
+    max-height: 218px;
+    max-width: inherit;
+}
+.new-album-item {
+  display: block;
+  float: left;
+  text-transform: uppercase;
+  width: 190px;
+  height: 190px;
+  overflow: hidden;
+}
+
+.new-album-item .thumbnail {
+  width: 190px;
+  height: 190px;
+} 
+
+.new-album-item .caption {
+  position: relative;
+  top: -100px;
+  background-color: rgba(30, 30, 30, 0.3);
+  margin: 0px 5px;
+  padding: 1px 3px 0px;
+  float: left;
+  width: 180px;
+}
+
+.new-album-item .caption h3 {
+  font-size: 14px;
+  padding: 0px;
+  margin: 0px;
+  float: right;
+  text-align: right;
+}
+
+.new-album-item .caption h4 {
+  font-size: 11px;
+  margin: 5px 0px 0px;
+  float: right;
+  text-align: right;
+  clear: both;
+}
+
+.new-album-item .caption p {
+  text-align: left;
+  font-size: 10px;
+  padding: 5px 0px 0px;
+  float: left;
+}
+
+.new-album-item a {
+  color: #efefef;
+}
+
+.new-album-item a:hover {
+  color: #aaa;
+}
 </style>
 <script>
 function play_selected() {
@@ -220,6 +281,7 @@ $(document).ready(function() {
             <div id="navigation" class="affix">
               <ul class="nav">
                 <li class="bottom-buffer"><a class="external" href="{% url "random_album" %}"><i class="glyphicon glyphicon-random"></i></a></li>
+                <li class="bottom-buffer"><a class="external" href="{% url "new_albums" %}"><i class="glyphicon glyphicon-plus"></i></a></li>
               {% for letter in letters %}
                 <li><a href="#{{ letter }}">{{ letter }}</a></li>
               {% endfor %}

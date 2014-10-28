@@ -27,4 +27,5 @@ urlpatterns = patterns('',
 
     url(r'^cover/(?P<pk>\d+)/$', views.CoverFileView.as_view(), name='cover'),
     url(r'^album/random/$', views.RandomAlbumRedirect.as_view(), name='random_album'),
+    url(r'^album/new/$', views.NewAlbumList.as_view(), name="new_albums"),
 )
