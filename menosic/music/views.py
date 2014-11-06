@@ -2,6 +2,9 @@ import datetime
 import json
 import os
 import subprocess
+
+from PIL import Image
+
 from django.conf import settings
 from django.http import HttpResponse, StreamingHttpResponse, Http404
 from django.utils.http import urlsafe_base64_decode
@@ -254,16 +257,36 @@ class CoverFileView(BaseDetailView):
 
     def render_to_response(self, request):
         cover_path = self.object.cover()
+                            # Sanity check for cover_path
+        if not cover_path or \
+           (cover_path and not os.path.exists(cover_path)):
+            raise Http404
 
-        if not cover_path:
+        save = False
+        if not settings.DEBUG:
+            save = True
+            thumbnail_path = os.path.join(os.path.dirname(cover_path), "thumbnail.jpg")
+
+        try:
+            if save and os.path.exists(thumbnail_path):
+                im = Image.open(thumbnail_path)
+            else:
+                im = Image.open(cover_path)
+                                    # Thumbnail keeps aspect ratio
+                im.thumbnail((200, 200), Image.ANTIALIAS)
+
+                if save:
+                    im.save(thumbnail_path, 'JPEG', quality=90)
+
+        except None:        # TODO: Figure out which exceptions can be thrown?
             raise Http404
 
         response = HttpResponse(content_type='image/jpeg')
-        response['Content-Length'] = os.path.getsize(cover_path)
         if settings.DEBUG:
-            response.write(open(cover_path, 'rb').read())
+            im.save(response, 'JPEG', quality=90);
         else:
-            response['X-Accel-Redirect'] = cover_path
+            response['Content-Length'] = os.path.getsize(thumbnail_path)
+            response['X-Accel-Redirect'] = thumbnail_path
         return response
 
 
