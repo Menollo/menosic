@@ -253,7 +253,7 @@ class CoverFileView(BaseDetailView):
     model = models.Album
 
     def render_to_response(self, request):
-        cover_path = self.object.cover
+        cover_path = self.object.cover()
 
         if not cover_path:
             raise Http404

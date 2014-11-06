@@ -1,8 +1,11 @@
 import os
+import json
+import urllib
 import datetime
 import importlib
 import mimetypes
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 from music import fields, helpers
 from music.backend import files as files_backend
@@ -99,12 +102,16 @@ class Album(models.Model):
         else:
             return '0000'
 
+    @property
+    def artist(self):
+        return self.artists.all()[0].name
+
+
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('album_detail', args=[self.pk])
 
-    @property
-    def cover(self):
+    def cover(self, return_if_not_exists=False):
         if self.path:
             path = self.path
         else:
@@ -113,14 +120,66 @@ class Album(models.Model):
             except IndexError:
                 return None
             path = os.path.dirname(first_track.path)
+            if os.path.basename(path).startswith('Disc'):
+                path = os.path.dirname(path)
 
         c = os.path.join(path, 'cover.jpg')
-        if os.path.isfile(c):
+        if os.path.isfile(c) or return_if_not_exists:
             return c
 
     def get_cover_url(self):
         from django.core.urlresolvers import reverse
         return reverse('cover', args=[self.pk])
+
+    def _mbid_cover_download(self, mbid, cover):
+        try:
+            request = "http://coverartarchive.org/release/{mbid}/".format(mbid=mbid)
+            response = urllib.request.urlopen(request)
+            obj = json.loads(response.readall().decode('utf-8'))
+            url = obj['images'][0]['image']
+            urllib.request.urlretrieve(url, cover)
+            return True
+        except (urllib.error.HTTPError, KeyError):
+            return False
+
+
+    def download_cover(self, override=False, search_lastfm=False):
+        cover = self.cover(return_if_not_exists=True)
+
+        if os.path.isfile(cover) and not override:
+            return 
+
+        if not (self.musicbrainz_albumid and self._mbid_cover_download(self.musicbrainz_albumid, cover)) and search_lastfm:
+            request = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key={api_key}&artist={artist}&album={album}&format=json".format(
+                    api_key = settings.LASTFM_API_KEY,
+                    artist = urllib.parse.quote_plus(self.artist),
+                    album = urllib.parse.quote_plus(self.title))
+
+            try:
+                response = urllib.request.urlopen(request)
+                obj = json.loads(response.readall().decode('utf-8'))
+            except urllib.error.URLError:
+                print("image not found on lastfm: {artist} - {album}".format(artist=self.artist, album=self.title))
+
+            else:
+                images = dict([ (item['size'], item['#text']) for item in obj['album']['image'] ])
+                image_preference = ['mega', 'extralarge', 'large', 'medium', 'small']
+
+                image_url = None
+                for i in image_preference:
+                    if i in images.keys():
+                        image_url = images[i]
+                        break
+
+                if image_url:
+                    try:
+                        urllib.request.urlretrieve(image_url, cover)
+                    except urllib.error.URLError:
+                        print("error while downloading cover for {artist} - {album} on url: {url}".format(artist=self.artist, album=self.title, url=image_url))
+
+            #if not self._mbid_cover_download(
+
+
 
 
 class Track(models.Model):
