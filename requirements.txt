@@ -1,2 +1,3 @@
 mutagenx
 django
+pillow
