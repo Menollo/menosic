@@ -183,7 +183,7 @@ class ServeFileMixin(object):
         if settings.DEBUG:
             response.write(open(self.track.full_path, 'rb').read())
         else:
-            response['X-Accel-Redirect'] = self.track.full_path
+            response['X-Accel-Redirect'] = self.track.sendfile_location
         return response
 
     def convert(self):
@@ -255,6 +255,10 @@ class LastPlayedView(ListView):
 class CoverFileView(BaseDetailView):
     model = models.Album
 
+    def sendfile_location(self, path):
+        relative_path = path[len(self.object.collection.location):]
+        return "%s%s" % (self.object.collection.sendfile_location, relative_path)
+
     def render_to_response(self, request):
         cover_path = self.object.cover()
                             # Sanity check for cover_path
@@ -286,7 +290,7 @@ class CoverFileView(BaseDetailView):
             im.save(response, 'JPEG', quality=90);
         else:
             response['Content-Length'] = os.path.getsize(thumbnail_path)
-            response['X-Accel-Redirect'] = thumbnail_path
+            response['X-Accel-Redirect'] = self.sendfile_location(thumbnail_path)
         return response
 
 
