@@ -298,12 +298,22 @@ class RandomAlbumRedirect(RedirectView):
     model = models.Album
     permanent = False
 
+    def get_queryset(self):
+        return self.model.objects.all()
+
     def get_redirect_url(self, *args, **kwargs):
-        albums = self.model.objects.order_by('?')
+        albums = self.get_queryset().order_by('?')
         if albums.count() > 0:
             album = albums[0]
             return album.get_absolute_url()
         raise Http404
+
+
+class RandomAlbumForArtistRedirect(RandomAlbumRedirect):
+    def get_queryset(self):
+        qs = super(RandomAlbumForArtistRedirect, self).get_queryset()
+        qs = qs.filter(artists__pk=self.kwargs.get('pk', 0))
+        return qs
 
 
 class NewAlbumList(ListView):

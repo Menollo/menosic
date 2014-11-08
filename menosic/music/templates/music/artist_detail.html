@@ -1,10 +1,13 @@
 {{ artist.name }}
 
 <h1>{{ artist.name }}</h1>
-<ul id="album_list">
-{% for album in artist.album_set.all %}
-    <li><a href="{{ album.get_absolute_url }}">{{ album.year }} - {{ album.title }}</a></li>
-{% empty %}
-    <li>No albums for {{ artist.name }}.</li>
-{% endfor %}
-</ul>
+{% with albums=artist.album_set.all %}
+  {% if albums.count > 1 %}<a href="{% url "random_album" artist.pk %}"><i class="glyphicon glyphicon-random"></i></a>{% endif %}
+  <ul id="album_list">
+  {% for album in albums %}
+      <li><a href="{{ album.get_absolute_url }}">{{ album.year }} - {{ album.title }}</a></li>
+  {% empty %}
+      <li>No albums for {{ artist.name }}.</li>
+  {% endfor %}
+  </ul>
+{% endwith %}
