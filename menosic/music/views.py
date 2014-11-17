@@ -7,7 +7,7 @@ from PIL import Image
 
 from django.conf import settings
 from django.http import HttpResponse, StreamingHttpResponse, Http404
-from django.utils.http import urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode, urlquote
 from django.views.generic import (
     DetailView, View, TemplateView, ListView, RedirectView
 )
@@ -257,7 +257,7 @@ class CoverFileView(BaseDetailView):
 
     def sendfile_location(self, path):
         relative_path = path[len(self.object.collection.location):]
-        return "%s%s" % (self.object.collection.sendfile_location, relative_path)
+        return urlquote("%s%s" % (self.object.collection.sendfile_location, relative_path))
 
     def render_to_response(self, request):
         cover_path = self.object.cover()

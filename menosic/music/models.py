@@ -7,6 +7,7 @@ import mimetypes
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
+from django.utils.http import urlquote
 from music import fields, helpers
 from music.backend import files as files_backend
 
@@ -216,7 +217,7 @@ class Track(models.Model):
 
     @property
     def sendfile_location(self):
-        return "%s%s" % (self.collection.sendfile_location, self.relative_path)
+        return urlquote("%s%s" % (self.collection.sendfile_location, self.relative_path))
 
     @property
     def artist(self):
