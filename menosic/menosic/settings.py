@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -20,12 +19,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'ffg1&x84gehk4#3=4aw2slg83v-h=kp@znluxvtasb&2#ulgb)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = __debug__
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -100,3 +98,15 @@ LOGIN_REDIRECT_URL = '/'
 
 # Text to use for obligated fields (None is strickt mode, raises exception on missing information)
 UNKNOWN_TEXT = 'Unknown'
+
+# Add your lastfm API key, currently only used for downloading covers images
+LASTFM_API_KEY = "Enter your lastfm api key to use lastfm functionality"
+
+# Download cover image when new album is added (if no cover image present), slow if scanning for first time.
+DOWNLOAD_COVER_ON_SCAN = False
+
+# try to import local_settings for overrides
+try:
+    from local_settings import *
+except ImportError:
+    pass

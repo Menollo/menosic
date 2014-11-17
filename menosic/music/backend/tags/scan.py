@@ -85,6 +85,8 @@ class Scan(object):
                     musicbrainz_releasegroupid=t.album.musicbrainz_releasegroupid,
                     collection=self.collection)
                 _album.save()
+                if settings.DOWNLOAD_COVER_ON_SCAN:
+                    _album.download_cover(override=False, search_lastfm=True)
 
         _album.artists.add(*self.artists(t, t.album.albumartists))
         _album.genres.add(*self.genres(t.genres))
