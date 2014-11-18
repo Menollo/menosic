@@ -11,7 +11,6 @@ from django.utils.http import urlquote
 from music import fields, helpers
 from music.backend import files as files_backend
 
-
 class Collection(models.Model):
     COLLECTION_BACKENDS = (
         ('T', 'Tags'),
@@ -108,6 +107,9 @@ class Album(models.Model):
     def artist(self):
         return self.artists.all()[0].name
 
+    @property
+    def album_types(self):
+        return [ at.name for at in self.albumtypes.all() if at.name != 'album' ]
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse

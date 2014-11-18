@@ -5,7 +5,9 @@
   {% if albums.count > 1 %}<a href="{% url "random_album" artist.pk %}"><i class="glyphicon glyphicon-random"></i></a>{% endif %}
   <ul id="album_list">
   {% for album in albums %}
-      <li><a href="{{ album.get_absolute_url }}">{{ album.year }} - {{ album.title }}</a></li>
+  <li class="{% for album_type in album.album_types %}albumtype-{{ album_type }} {% endfor %}"><a href="{{ album.get_absolute_url }}">{{ album.year }} - {{ album.title }}
+          {% if album.album_types %}({% for album_type in album.album_types %}{{ album_type }}{% if not forloop.last %}, {% endif %}{% endfor %}){% endif %}
+      </a></li>
   {% empty %}
       <li>No albums for {{ artist.name }}.</li>
   {% endfor %}
