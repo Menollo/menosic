@@ -22,7 +22,7 @@ def duration(length):
 def artists():
     # tags backend
     from music.models import Artist, Collection
-    artists = Artist.objects.exclude(album=None).values('id', 'name', 'sortname')
+    artists = Artist.objects.exclude(album=None).filter(collection__disabled=False).values('id', 'name', 'sortname')
 
     from django.core.urlresolvers import reverse
     url = reverse('artist_detail', args=(0,))
@@ -39,7 +39,7 @@ def artists():
     from music.backend.files import artists_tuple
 
     dirs = []
-    for collection in Collection.objects.filter(backend='F'):
+    for collection in Collection.objects.filter(backend='F', disabled=False):
         dirs += artists_tuple(collection)
 
     artists = sorted(list(artists) + dirs, key=lambda a: a['sortname'])

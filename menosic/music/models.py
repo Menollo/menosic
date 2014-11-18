@@ -21,6 +21,7 @@ class Collection(models.Model):
     backend = models.CharField(max_length=1, choices=COLLECTION_BACKENDS)
     location = models.CharField(max_length=255)
     sendfile_location = models.CharField(max_length=255, null=True, blank=True)
+    disabled = models.BooleanField(default=False)
 
     def scan(self):
         try:
