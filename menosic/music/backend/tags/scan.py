@@ -67,6 +67,7 @@ class Scan(object):
             _album = models.Album.objects.get(
                 title=t.album.title,
                 artists__name__in=[self.unknown(a.name) for a in t.album.albumartists],
+                date=t.album.date,
                 collection=self.collection)
         except models.Album.DoesNotExist:
             try:
