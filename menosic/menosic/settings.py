@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'menosic',
     'music',
+    'music.settings',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -46,6 +47,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'music.middleware.LoginTokenMiddleware',
+    'music.settings.middleware.MusicSettingsMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

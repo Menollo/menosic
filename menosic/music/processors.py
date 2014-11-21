@@ -11,5 +11,5 @@ def playlist(request):
 
 
 def artists(request):
-    return {'artists': helpers.artists(),
+    return {'artists': helpers.artists(request),
             'letters': string.ascii_uppercase}
