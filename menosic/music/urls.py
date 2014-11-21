@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
@@ -29,4 +29,6 @@ urlpatterns = patterns('',
     url(r'^album/random/(?P<pk>\d+)/$', views.RandomAlbumForArtistRedirect.as_view(), name='random_album'),
     url(r'^album/random/$', views.RandomAlbumRedirect.as_view(), name='random_album'),
     url(r'^album/new/$', views.NewAlbumList.as_view(), name="new_albums"),
+
+    url(r'^settings/', include('music.settings.urls', namespace='settings'))
 )

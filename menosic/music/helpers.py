@@ -19,7 +19,7 @@ def duration(length):
     return duration[2:] if duration[0:2] == '0:' else duration
 
 
-def artists():
+def artists(request):
     # tags backend
     from music.models import Artist, Collection
     artists = Artist.objects.exclude(album=None).filter(collection__disabled=False).values('id', 'name', 'sortname')
@@ -42,7 +42,18 @@ def artists():
     for collection in Collection.objects.filter(backend='F', disabled=False):
         dirs += artists_tuple(collection)
 
-    artists = sorted(list(artists) + dirs, key=lambda a: a['sortname'])
+    sort_key = "sortname"
+    if hasattr(request, "user") and \
+       hasattr(request.user, "settings") and \
+       hasattr(request.user.settings, "ordering"):
+        sort_key = request.user.settings.ordering
+
+    def add_sortkeyname_to_tag_artist(dict_item):
+        dict_item['sortkeyname'] = dict_item[sort_key]
+        return dict_item
+    artists = map(add_sortkeyname_to_tag_artist, artists)
+
+    artists = sorted(list(artists) + dirs, key=lambda a: a[sort_key])
 
     return artists
 

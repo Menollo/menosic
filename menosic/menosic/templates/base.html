@@ -300,6 +300,7 @@ $(document).ready(function() {
               <ul class="nav">
                 <li class="bottom-buffer"><a class="external" href="{% url "random_album" %}"><i class="glyphicon glyphicon-random"></i></a></li>
                 <li class="bottom-buffer"><a class="external" href="{% url "new_albums" %}"><i class="glyphicon glyphicon-plus"></i></a></li>
+                <li class="bottom-buffer"><a class="external" href="{% url "settings:detail" %}"><i class="glyphicon glyphicon-wrench"></i></a></li>
               {% for letter in letters %}
                 <li><a href="#{{ letter }}">{{ letter }}</a></li>
               {% endfor %}
@@ -309,9 +310,9 @@ $(document).ready(function() {
               <h2>Artists</h2>
               <ul class="nav nav-sidebar">
                 {% for artist in artists %}
-                {% ifchanged artist.sortname.0 %}
+                {% ifchanged artist.sortkeyname.0 %}
                     </ul>
-                    <span id="{{ artist.sortname.0 }}">{{ artist.sortname.0 }}</span>
+                    <span id="{{ artist.sortkeyname.0 }}">{{ artist.sortkeyname.0 }}</span>
                     <ul>
                 {% endifchanged %}
 

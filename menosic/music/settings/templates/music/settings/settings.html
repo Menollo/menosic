@@ -1,0 +1,5 @@
+<form method="post" action="{% url "settings:detail" %}">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" value="Submit" />
+</form>
