@@ -44,7 +44,7 @@ class Country(models.Model):
 class Artist(models.Model):
     name = models.CharField(max_length=255, db_index=True)
     sortname = models.CharField(max_length=255, db_index=True)
-    genres = models.ManyToManyField(Genre, null=True)
+    genres = models.ManyToManyField(Genre)
     country = models.ForeignKey(Country, null=True)
     path = models.CharField(max_length=255, db_index=True, null=True)
     collection = models.ForeignKey(Collection)
@@ -77,16 +77,16 @@ class Label(models.Model):
 
 class Album(models.Model):
     title = models.CharField(max_length=255, db_index=True)
-    artists = models.ManyToManyField(Artist, null=True)
+    artists = models.ManyToManyField(Artist)
     date = models.CharField(max_length=15, null=True, db_index=True)
-    genres = models.ManyToManyField(Genre, null=True)
+    genres = models.ManyToManyField(Genre)
     country = models.ForeignKey(Country, null=True)
     path = models.CharField(max_length=255, db_index=True, null=True)
     collection = models.ForeignKey(Collection)
 
-    labels = models.ManyToManyField(Label, null=True)
-    albumtypes = models.ManyToManyField(AlbumType, null=True)
-    albumstatus = models.ManyToManyField(AlbumStatus, null=True)
+    labels = models.ManyToManyField(Label)
+    albumtypes = models.ManyToManyField(AlbumType)
+    albumstatus = models.ManyToManyField(AlbumStatus)
 
     musicbrainz_albumid = fields.UUIDField()
     musicbrainz_releasegroupid = fields.UUIDField()
@@ -192,7 +192,7 @@ class Track(models.Model):
     tracknumber = models.PositiveIntegerField(null=True)
     title = models.CharField(max_length=255)
     album = models.ForeignKey(Album, null=True)
-    artists = models.ManyToManyField(Artist, null=True)
+    artists = models.ManyToManyField(Artist)
     length = models.PositiveIntegerField(null=True)
     bitrate = models.PositiveIntegerField(null=True)
     filetype = models.CharField(max_length=15, null=True)
