@@ -109,6 +109,6 @@ DOWNLOAD_COVER_ON_SCAN = False
 
 # try to import local_settings for overrides
 try:
-    from local_settings import *
+    from menosic.local_settings import *
 except ImportError:
     pass
