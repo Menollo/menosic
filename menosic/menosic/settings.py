@@ -21,8 +21,6 @@ SECRET_KEY = 'ffg1&x84gehk4#3=4aw2slg83v-h=kp@znluxvtasb&2#ulgb)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = __debug__
 
-TEMPLATE_DEBUG = DEBUG
-
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -50,17 +48,27 @@ MIDDLEWARE_CLASSES = (
     'music.settings.middleware.MusicSettingsMiddleware',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    'music.processors.playlist',
-    'music.processors.artists',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+		"django.template.context_processors.i18n",
+		"django.template.context_processors.media",
+		"django.template.context_processors.static",
+		"django.template.context_processors.tz",
+		'music.processors.playlist',
+		'music.processors.artists',
+            ],
+        },
+    },
+]
 
 ROOT_URLCONF = 'menosic.urls'
 

@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
@@ -6,7 +6,7 @@ from music import views
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', login_required(TemplateView.as_view(template_name='base.html')), name='home'),
     url(r'^artist/(?P<pk>\d+)/$', views.ArtistDetailView.as_view(), name='artist_detail'),
     url(r'^browse/(?P<collection>\d+)/(?P<path>\w+)/$', views.BrowseView.as_view(), name='browse'),
@@ -31,4 +31,4 @@ urlpatterns = patterns('',
     url(r'^album/new/$', views.NewAlbumList.as_view(), name="new_albums"),
 
     url(r'^settings/', include('music.settings.urls', namespace='settings'))
-)
+]
