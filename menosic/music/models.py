@@ -1,6 +1,8 @@
 import os
 import json
-import urllib
+import urllib.parse
+import urllib.error
+import urllib.request
 import datetime
 import importlib
 import mimetypes
@@ -140,7 +142,7 @@ class Album(models.Model):
         try:
             request = "http://coverartarchive.org/release/{mbid}/".format(mbid=mbid)
             response = urllib.request.urlopen(request)
-            obj = json.loads(response.readall().decode('utf-8'))
+            obj = json.loads(response.read().decode('utf-8'))
             url = obj['images'][0]['image']
             urllib.request.urlretrieve(url, cover)
             return True
@@ -151,7 +153,7 @@ class Album(models.Model):
     def download_cover(self, override=False, search_lastfm=False):
         cover = self.cover(return_if_not_exists=True)
 
-        if os.path.isfile(cover) and not override:
+        if (cover and os.path.isfile(cover)) and not override:
             return 
 
         if not (self.musicbrainz_albumid and self._mbid_cover_download(self.musicbrainz_albumid, cover)) and search_lastfm:
@@ -162,7 +164,7 @@ class Album(models.Model):
 
             try:
                 response = urllib.request.urlopen(request)
-                obj = json.loads(response.readall().decode('utf-8'))
+                obj = json.loads(response.read().decode('utf-8'))
             except urllib.error.URLError:
                 print("image not found on lastfm: {artist} - {album}".format(artist=self.artist, album=self.title))
 
