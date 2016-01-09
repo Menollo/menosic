@@ -1,6 +1,6 @@
 {{ artist.name }}
 
-<h1>{{ artist.name }}</h1>
+<h2>{{ artist.name }}</h2>
 {% with albums=artist.album_set.all %}
   {% if albums.count > 1 %}<a href="{% url "random_album" artist.pk %}"><i class="glyphicon glyphicon-random"></i></a>{% endif %}
   <ul id="album_list">

@@ -6,7 +6,7 @@
     <img src="{% url 'cover' album.pk %}">
   </div>
   {% endif %}
-  <h1>{{ album.title }}</h1>
+  <h2>{{ album.title }}</h2>
 </div>
 <p><a class="to_playlist" href="{% url 'add_album' album.id %}">+ add album to playlist</a></p>
 

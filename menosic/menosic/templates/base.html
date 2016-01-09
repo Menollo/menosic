@@ -1,3 +1,4 @@
+{% load static %}
 <html>
 <head>
     <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
@@ -11,7 +12,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}" />
 <style>
 #outer-container {
     position: relative;
@@ -33,15 +34,34 @@
     height: 30px;
     background: #efefef;
     z-index: 20;
+    border-bottom: 1px solid #ddd;
 }
-#search {
+#header_left {
+    float: left;
+    padding: 4px;
+}
+#header_right {
     float: right;
-    padding: 2px 4px;
+    padding: 4px;
+}
+#header_left h1 {
+    padding: 0;
+    margin: 0px 4px;
+    font-size: 20px;
+    color: #b7337a;
+}
+#header_left h1 i{
+    display: inline-block;
+    padding-right: 10px;
 }
 input[type=text] {
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 0 3px;
+}
+#header label {
+    margin-left: 5px;
+    color: #337ab7;
 }
 .meta_overlay {
     background: #efefef;
@@ -56,7 +76,15 @@ input[type=text] {
 .clear {
     clear: both;
 }
-
+.table>tbody>tr>td,
+.table>tbody>tr>th,
+.table>tfoot>tr>td,
+.table>tfoot>tr>th,
+.table>thead>tr>td,
+.table>thead>tr>th {
+    font-size: 12px;
+    padding: 3px;
+}
 .album {
     margin: 10px 0px;
 }
@@ -119,6 +147,10 @@ input[type=text] {
     padding: 0;
     margin: 0;
 }
+audio {
+    width: 100%;
+    padding-right: 16px;
+}
 #player {
     position: absolute;
     height: 30px;
@@ -129,7 +161,7 @@ input[type=text] {
     padding-top: 45px;
 }
 #playlist #actions {
-    min-width: 75px;
+    min-width: 40px;
 }
 #meta { /* right sidebar */
     overflow-y: scroll;
@@ -365,7 +397,7 @@ function search_delay() {
 }
 
 $(document).ready(function() {
-    $('#artists-list a, #navigation a.external').click(link_to_content);
+    $('#artists-list a, #navigation a.external, a.to_content').click(link_to_content);
     $('#playlist a.to_player').click(link_to_player);
     $('#playlist a.to_playlist').click(link_to_playlist);
     $('#player').bind('ended', play_next);
@@ -384,7 +416,11 @@ $(document).ready(function() {
 {% block all %}
 <div id="outer-container">
     <div id="header">
-        <div id="search">
+        <div id="header_left">
+            <h1><i class="glyphicon glyphicon-music"></i>Menosic</h1>
+        </div>
+        <div id="header_right">
+            <a class="to_content" href="{% url "settings:detail" %}"><i class="glyphicon glyphicon-wrench"></i></a>
             <label for="seachbox" class="glyphicon glyphicon-search"></label>
             <input id="searchbox" name="search" type="text" />
         </div>
@@ -396,7 +432,6 @@ $(document).ready(function() {
                   <ul class="nav">
                     <li class="bottom-buffer"><a class="external" href="{% url "random_album" %}"><i class="glyphicon glyphicon-random"></i></a></li>
                     <li class="bottom-buffer"><a class="external" href="{% url "new_albums" %}"><i class="glyphicon glyphicon-plus"></i></a></li>
-                    <li class="bottom-buffer"><a class="external" href="{% url "settings:detail" %}"><i class="glyphicon glyphicon-wrench"></i></a></li>
                   {% for letter in letters %}
                     <li><a href="#{{ letter }}">{{ letter }}</a></li>
                   {% endfor %}
