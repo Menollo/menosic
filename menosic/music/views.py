@@ -5,6 +5,7 @@ import subprocess
 
 from PIL import Image
 
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse, StreamingHttpResponse, Http404
 from django.utils.http import urlsafe_base64_decode, urlquote
@@ -12,7 +13,7 @@ from django.views.generic import (
     DetailView, View, TemplateView, ListView, RedirectView
 )
 from django.views.generic.detail import SingleObjectMixin, BaseDetailView
-from music import helpers, models
+from music import helpers, models, search
 from music.backend import files as files_backend
 
 
@@ -252,6 +253,7 @@ class LastPlayedView(ListView):
         some_time_ago = datetime.datetime.now()-datetime.timedelta(minutes=15)
         return models.LastPlayed.objects.filter(time__gt=some_time_ago)
 
+
 class CoverFileView(BaseDetailView):
     model = models.Album
 
@@ -325,3 +327,27 @@ class NewAlbumList(ListView):
     def get_queryset(self):
         qs = super(NewAlbumList, self).get_queryset()
         return qs.order_by('-pk')
+
+
+class SearchView(JSONResponseMixin, TemplateView):
+
+    def get_context_data(self, **kwargs):
+        q = self.request.GET.get('q')
+        if not q:
+            raise Http404
+
+        data = {}
+
+        artists = search.search_artists(q).values('name', 'id')
+        artist_url = reverse('artist_detail', args=(0,))
+        data['artists'] = list(map(lambda x: {'name': x['name'], 'url': artist_url.replace('0', str(x['id']))}, artists))
+
+        albums = search.search_albums(q).values('title', 'id', 'artists__name')
+        album_url = reverse('album_detail', args=(0,))
+        data['albums'] = list(map(lambda x: {'title': x['title'], 'artist': x['artists__name'], 'url': album_url.replace('0', str(x['id']))}, albums))
+
+        tracks = search.search_tracks(q).values('title', 'album__id', 'artists__name')
+        album_url = reverse('album_detail', args=(0,))
+        data['tracks'] = list(map(lambda x: {'title': x['title'], 'artist': x['artists__name'], 'url': album_url.replace('0', str(x['album__id']))}, tracks))
+
+        return data

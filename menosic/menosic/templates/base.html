@@ -13,6 +13,46 @@
 
 
 <style>
+#outer-container {
+    position: relative;
+    height: 100%;
+    margin: 0;
+}
+#outer-content-container {
+    margin: 0;
+    padding-top: 30px;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 10;
+}
+#header {
+    margin: 0;
+    width: 100%;
+    position: absolute;
+    height: 30px;
+    background: #efefef;
+    z-index: 20;
+}
+#search {
+    float: right;
+    padding: 2px 4px;
+}
+input[type=text] {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0 3px;
+}
+.meta_overlay {
+    background: #efefef;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    margin: 0;
+    border: 1px solid #dfdfdf;
+    padding: 5px 10px;
+}
 .clear {
     clear: both;
 }
@@ -216,6 +256,14 @@
 
 </style>
 <script>
+var delay = (function(){
+  var timer = 0;
+  return function(callback, ms){
+    clearTimeout (timer);
+    timer = setTimeout(callback, ms);
+  };
+})();
+
 function play_selected() {
     player = $('#player').get(0);
     player.pause();
@@ -276,11 +324,52 @@ function update_last_played() {
     });
 }
 
+function append_results(div, name, title, data) {
+    div.append('<h4>' + title + '</h4>');
+    div.append('<ul class="' + name + '" />');
+    $(data).each(function(id, item) {
+        if (name == 'artists') {
+            var display = item['name'];
+        } else {
+            var display = item['artist'] + ' - ' + item['title'];
+        }
+        var link = $("<a href='"+ item['url'] +"'>" + display + "</a>");
+        link.click(link_to_content);
+        div.find('ul.' + name).append($("<li>").append(link));
+    });
+
+}
+
+function search(term) {
+    if (term.length > 2) {
+        $.getJSON('{% url 'search' %}', {'q': term}, function(data) {
+            $('#meta #search_results').remove();
+            $('#meta').append('<div id="search_results" class="meta_overlay" />');
+            var results = $('#meta #search_results');
+            results.append('<h3 class="glyphicon glyphicon-search">Results</h3>');
+
+            append_results(results, 'artists', 'Artists', data['artists']);
+            append_results(results, 'albums', 'Albums', data['albums']);
+            append_results(results, 'tracks', 'Tracks', data['tracks']);
+        });
+    } else {
+        $('#meta #search_results').remove();
+    }
+}
+
+function search_delay() {
+	term = this.value
+	delay(function() {
+		search(term);
+	}, 300);
+}
+
 $(document).ready(function() {
     $('#artists-list a, #navigation a.external').click(link_to_content);
     $('#playlist a.to_player').click(link_to_player);
     $('#playlist a.to_playlist').click(link_to_playlist);
     $('#player').bind('ended', play_next);
+    $('#searchbox').bind('keyup', search_delay);
     setInterval(update_last_played, 30000);
     update_last_played();
 });
@@ -293,59 +382,67 @@ $(document).ready(function() {
 <body>
 
 {% block all %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-3 col-md-3" id="artists" data-spy="scroll" data-target="#navigation">
-            <div id="navigation" class="affix">
-              <ul class="nav">
-                <li class="bottom-buffer"><a class="external" href="{% url "random_album" %}"><i class="glyphicon glyphicon-random"></i></a></li>
-                <li class="bottom-buffer"><a class="external" href="{% url "new_albums" %}"><i class="glyphicon glyphicon-plus"></i></a></li>
-                <li class="bottom-buffer"><a class="external" href="{% url "settings:detail" %}"><i class="glyphicon glyphicon-wrench"></i></a></li>
-              {% for letter in letters %}
-                <li><a href="#{{ letter }}">{{ letter }}</a></li>
-              {% endfor %}
-              </ul>
-            </div>
-            <div id="artists-list">
-              <h2>Artists</h2>
-              <ul class="nav nav-sidebar">
-                {% for artist in artists %}
-                {% ifchanged artist.sortkeyname.0 %}
-                    </ul>
-                    <span id="{{ artist.sortkeyname.0 }}">{{ artist.sortkeyname.0 }}</span>
-                    <ul>
-                {% endifchanged %}
+<div id="outer-container">
+    <div id="header">
+        <div id="search">
+            <label for="seachbox" class="glyphicon glyphicon-search"></label>
+            <input id="searchbox" name="search" type="text" />
+        </div>
+    </div>
+    <div id="outer-content-container" class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-3" id="artists" data-spy="scroll" data-target="#navigation">
+                <div id="navigation" class="affix">
+                  <ul class="nav">
+                    <li class="bottom-buffer"><a class="external" href="{% url "random_album" %}"><i class="glyphicon glyphicon-random"></i></a></li>
+                    <li class="bottom-buffer"><a class="external" href="{% url "new_albums" %}"><i class="glyphicon glyphicon-plus"></i></a></li>
+                    <li class="bottom-buffer"><a class="external" href="{% url "settings:detail" %}"><i class="glyphicon glyphicon-wrench"></i></a></li>
+                  {% for letter in letters %}
+                    <li><a href="#{{ letter }}">{{ letter }}</a></li>
+                  {% endfor %}
+                  </ul>
+                </div>
+                <div id="artists-list">
+                  <h2>Artists</h2>
+                  <ul class="nav nav-sidebar">
+                    {% for artist in artists %}
+                    {% ifchanged artist.sortkeyname.0 %}
+                        </ul>
+                        <span id="{{ artist.sortkeyname.0 }}">{{ artist.sortkeyname.0 }}</span>
+                        <ul>
+                    {% endifchanged %}
 
-                <li><a href="{{ artist.url }}">{{ artist.name }}</a></li>
-                {% endfor %}
-              </ul>
-            </div>
-        </div> 
-
-        <div class="col-sm-6 col-md-6" id="content-container">
-            <div id="content" class="padding">
-                    <h1>Welkom</h1>
-                    <p>Please select a track</p>
-            </div>
-            <div id="playlist-container">
-                <audio controls id="player">
-                    <source id="mp3" type="audio/mpeg" />
-                    <source id="ogg" type="audio/ogg" />
-                    Your browser does not support the audio tag!
-                </audio>
-                <div id="playlist" class="padding">
-                    {% include 'music/playlist.html' %}
+                    <li><a href="{{ artist.url }}">{{ artist.name }}</a></li>
+                    {% endfor %}
+                  </ul>
                 </div>
             </div>
-        </div>
-        <div class="col-sm-3 col-md-3 padding" id="meta">
-            <h2>Meta</h2>
-            <div id="last_played">
-            </div>
-        </div>
 
+            <div class="col-sm-6 col-md-6" id="content-container">
+                <div id="content" class="padding">
+                        <h1>Welkom</h1>
+                        <p>Please select a track</p>
+                </div>
+                <div id="playlist-container">
+                    <audio controls id="player">
+                        <source id="mp3" type="audio/mpeg" />
+                        <source id="ogg" type="audio/ogg" />
+                        Your browser does not support the audio tag!
+                    </audio>
+                    <div id="playlist" class="padding">
+                        {% include 'music/playlist.html' %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3 col-md-3 padding" id="meta">
+                <h2>Meta</h2>
+                <div id="last_played">
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
+<div>
 {% endblock all %}
 
 </body>
