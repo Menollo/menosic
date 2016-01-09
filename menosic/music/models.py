@@ -9,6 +9,7 @@ import mimetypes
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.http import urlquote
 from music import fields, helpers
 from music.backend import files as files_backend
@@ -354,7 +355,7 @@ class LastPlayed(BaseTrack):
 
     @property
     def minutes_ago(self):
-        delta = datetime.datetime.now() - self.time
+        delta = timezone.now() - self.time
         return int(delta.seconds / 60)
 
 

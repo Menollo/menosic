@@ -8,6 +8,7 @@ from PIL import Image
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse, StreamingHttpResponse, Http404
+from django.utils import timezone
 from django.utils.http import urlsafe_base64_decode, urlquote
 from django.views.generic import (
     DetailView, View, TemplateView, ListView, RedirectView
@@ -250,7 +251,7 @@ class LastPlayedView(ListView):
     template_name = 'music/last_played.html'
 
     def get_queryset(self):
-        some_time_ago = datetime.datetime.now()-datetime.timedelta(minutes=15)
+        some_time_ago = timezone.now() - datetime.timedelta(minutes=15)
         return models.LastPlayed.objects.filter(time__gt=some_time_ago)
 
 
