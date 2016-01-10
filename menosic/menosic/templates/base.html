@@ -12,6 +12,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
+    <script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}" />
 <style>
 #outer-container {
@@ -147,13 +148,18 @@ input[type=text] {
     padding: 0;
     margin: 0;
 }
-audio {
-    width: 100%;
-    padding-right: 16px;
+#client-control {
+    display: inline-block;
+    font-size: 20px;
+    vertical-align: top;
+    padding: 3px;
+
 }
-#player {
+#player-container {
     position: absolute;
     height: 30px;
+    width: 100%;
+    padding-right: 16px;
 }
 #playlist {
     overflow-y: scroll;
@@ -296,6 +302,12 @@ var delay = (function(){
   };
 })();
 
+var ws4redis = WS4Redis({
+    uri: '{{ WEBSOCKET_URI }}player_{{ playlist.id }}?subscribe-broadcast&publish-broadcast',
+    //receive_message: receiveMessage,
+    heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+});
+
 function play_selected() {
     player = $('#player').get(0);
     player.pause();
@@ -336,6 +348,7 @@ function link_to_playlist() {
         }
         $('#playlist a.to_playlist').click(link_to_playlist);
         $('#playlist a.to_player').click(link_to_player);
+        ws4redis.send_message('update playlist');
     });
     return false;
 }
@@ -390,7 +403,7 @@ function search(term) {
 }
 
 function search_delay() {
-	term = this.value
+	term = this.value;
 	delay(function() {
 		search(term);
 	}, 300);
@@ -404,8 +417,15 @@ $(document).ready(function() {
     $('#searchbox').bind('keyup', search_delay);
     setInterval(update_last_played, 30000);
     update_last_played();
-});
 
+    // client control
+    $("#client_pause").click(function() {
+        ws4redis.send_message('pause');
+    });
+    $("#client_next").click(function() {
+        ws4redis.send_message('next');
+    });
+});
 </script>
 
 
@@ -459,11 +479,17 @@ $(document).ready(function() {
                         <p>Please select a track</p>
                 </div>
                 <div id="playlist-container">
-                    <audio controls id="player">
-                        <source id="mp3" type="audio/mpeg" />
-                        <source id="ogg" type="audio/ogg" />
-                        Your browser does not support the audio tag!
-                    </audio>
+                    <div id="player-container">
+                        <audio controls id="player">
+                            <source id="mp3" type="audio/mpeg" />
+                            <source id="ogg" type="audio/ogg" />
+                            Your browser does not support the audio tag!
+                        </audio>
+                        <div id="client-control">
+                            <i id="client_pause" class="glyphicon glyphicon-pause"></i>
+                            <i id="client_next" class="glyphicon glyphicon-fast-forward"></i>
+                        </div>
+                    </div>
                     <div id="playlist" class="padding">
                         {% include 'music/playlist.html' %}
                     </div>

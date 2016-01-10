@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ws4redis',
     'menosic',
     'music',
     'music.settings',
@@ -66,19 +67,21 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-		"django.template.context_processors.i18n",
-		"django.template.context_processors.media",
-		"django.template.context_processors.static",
-		"django.template.context_processors.tz",
-		'music.processors.playlist',
-		'music.processors.artists',
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
+                'ws4redis.context_processors.default',
+                'music.processors.playlist',
+                'music.processors.artists',
             ],
         },
     },
 ]
 
 
-WSGI_APPLICATION = 'menosic.wsgi.application'
+#WSGI_APPLICATION = 'menosic.wsgi.application'
+WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 
 # Database
@@ -130,6 +133,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT= os.path.join(BASE_DIR, 'static')
+
+# Websockets
+WEBSOCKET_URL = '/ws/'
 
 LOGIN_REDIRECT_URL = '/'
 

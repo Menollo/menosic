@@ -1,7 +1,5 @@
 import json
-import threading
 from collections import OrderedDict
-import traceback
 
 import gi
 gi.require_version('Gst', '1.0')
@@ -11,7 +9,7 @@ import settings
 
 try:
     from urllib.request import urlopen
-    jsonurl = lambda u: json.loads(urlopen(u).readall().decode('utf-8'))
+    jsonurl = lambda u: json.loads(urlopen(u).read().decode('utf-8'))
 except ImportError:
     # python2 fallback
     from urllib2 import urlopen
@@ -40,7 +38,7 @@ class Playlist(object):
             return False
 
     def get_current(self):
-        return "%s%s" % (settings.SERVER_URI, self.current['mp3'])
+        return "%s%s" % (settings.SERVER, self.current['mp3'])
 
     def next(self):
         try:
@@ -53,52 +51,67 @@ class Playlist(object):
 class Player(object):
     playlist = None
 
+
     def __init__(self):
         Gst.init(None)
+
         self.player = Gst.ElementFactory.make('playbin', 'menosic')
 
-        self.bus = self.player.get_bus()
-        self.bus.connect('message::eos', self.on_eos)
-        self.bus.add_signal_watch()
-        self.player.send_event(Gst.Event.new_eos())
+        bus = self.player.get_bus()
+        bus.add_signal_watch()
+        bus.connect('message', self.on_message)
 
         self.update_playlist()
+        self.playlist.next()
+
+        GObject.threads_init()
+        self.loop = GObject.MainLoop()
+
+
+    def start(self):
+        self.loop.run()
+
+
+    def quit(self):
+        self.loop.quit()
+
 
     def update_playlist(self):
         current_id = self.playlist.current['id'] if self.playlist else None
 
-        data = jsonurl('%s/client/%s/?token=%s' % (settings.SERVER_URI, settings.PLAYER_ID, settings.CLIENT_TOKEN))
+        data = jsonurl('%s/client/%d/?token=%s' % (settings.SERVER, settings.PLAYER_ID, settings.CLIENT_TOKEN))
         if not self.playlist or [t['id'] for t in data['playlist']] != list(self.playlist.tracks.keys()):
             self.playlist = Playlist(data['playlist'], current_id)
-            if self.player.get_state != Gst.State.PLAYING:
-                if self.playlist.next():
-                    self.play()
 
-    def on_eos(self, bus, msg):
+    def on_message(self, bus, message):
+        t = message.type
+        print(t)
+        if t == Gst.MessageType.ERROR:
+            err, debug = msg.parse_error()
+            print("Error received from element %s: %s" % (msg.src.get_name(), err))
+            print("Debugging information: %s" % debug)
+        elif t == Gst.MessageType.EOS:
+            self.player.set_state(Gst.State.NULL)
+            if self.playlist.next():
+                self.play()
+            else:
+                print("End of playlist reached..")
+
+    def play(self):
+        print("Playing: %s - %s" % (self.playlist.current['artist'], self.playlist.current['title']))
+        self.player.set_property('uri', "%s?token=%s" % (self.playlist.get_current(), settings.CLIENT_TOKEN))
+        self.player.set_state(Gst.State.PLAYING)
+
+    def pause(self):
+        state = self.player.get_state(10)[1]
+        if state == Gst.State.PAUSED:
+            self.player.set_state(Gst.State.PLAYING)
+        elif state == Gst.State.PLAYING:
+            self.player.set_state(Gst.State.PAUSED)
+        else:
+            self.play()
+
+    def next(self):
         self.player.set_state(Gst.State.NULL)
         if self.playlist.next():
             self.play()
-
-
-    def play(self):
-        self.player.set_property('uri', "%s?token=%s" % (self.playlist.get_current(), settings.CLIENT_TOKEN))
-        self.player.set_state(Gst.State.PLAYING)
-        #if not self.player.set_state(Gst.State.PLAYING):
-        #    raise Exception("Cannot play MP3 file! (maybe gst-plugins-ugly is not installed?)")
-
-
-pl = Player()
-pl.play()
-
-loop_thread = threading.Thread(target = GObject.MainLoop().run)
-loop_thread.start()
-
-import time
-while True:
-    time.sleep(10)
-    try:
-        pl.update_playlist()
-    except:
-        print("Error updating playlist!")
-        traceback.print_exc()
-        pass
