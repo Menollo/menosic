@@ -320,6 +320,14 @@ function play_selected() {
         $('#player').attr('playlist_id', $('#playlist .playing').attr('id'));
         player.load();
         player.play();
+
+        ws.send(JSON.stringify({
+            action: "song_change",
+            key: "{{ user.id }}",
+            playlist, playlist,
+            player: control_player,
+            identifier: $('#playlist .playing').attr('id')
+        }));
     } else {
         ws.send(JSON.stringify({
             action: "play_song",
@@ -483,6 +491,25 @@ $(document).ready(function() {
             if (obj['playlist'] == playlist && obj['player'] == control_player) {
                 $('#playlist tr').removeClass('playing');
                 $('#playlist #' + obj['identifier']).addClass('playing');
+            }
+        } else if(obj['action'] == 'pause') {
+            if (obj['player'] == control_player) {
+                var player = $('#player').get(0);
+                if (player.paused) {
+                    player.play();
+                } else {
+                    player.pause();
+                }
+            }
+        } else if(obj['action'] == 'next') {
+            if (obj['player'] == control_player) {
+                play_next();
+            }
+        } else if(obj['action'] == 'play_song') {
+            if (obj['playlist'] == playlist && obj['player'] == control_player) {
+                $('#playlist tr').removeClass('playing');
+                $('#playlist #' + obj['identifier']).addClass('playing');
+                play_selected();
             }
         } else {
             console.log(obj);
