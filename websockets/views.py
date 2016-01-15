@@ -78,7 +78,7 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
 
     def update_playlist(self, data):
         for obj, client in self.clients.items():
-            if obj not is self:
+            if obj != self:
                 if client.playlist == data['playlist']:
                     response = {
                             'action': 'update_playlist',
