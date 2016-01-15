@@ -12,7 +12,6 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-    <script type="text/javascript" src="{{ STATIC_URL }}js/ws4redis.js"></script>
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}" />
 <style>
 #outer-container {
@@ -149,11 +148,16 @@ input[type=text] {
     margin: 0;
 }
 #client-control {
-    display: inline-block;
+    display: none;
     font-size: 20px;
     vertical-align: top;
     padding: 3px;
-
+}
+#player-selector {
+    display: inline-block;
+    font-size: 14px;
+    vertical-align: top;
+    padding: 6px;
 }
 #player-container {
     position: absolute;
@@ -294,6 +298,11 @@ input[type=text] {
 
 </style>
 <script>
+var local_player = Math.random().toString(36).replace(/[^a-zA-Z0-9]+/g, '').substr(0, 10);
+var control_player = local_player;
+var ws = new WebSocket('ws://localhost:8001/');
+var playlist = {{ playlist.id }};
+
 var delay = (function(){
   var timer = 0;
   return function(callback, ms){
@@ -302,20 +311,24 @@ var delay = (function(){
   };
 })();
 
-var ws4redis = WS4Redis({
-    uri: '{{ WEBSOCKET_URI }}player_{{ playlist.id }}?subscribe-broadcast&publish-broadcast',
-    //receive_message: receiveMessage,
-    heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
-});
-
 function play_selected() {
-    player = $('#player').get(0);
-    player.pause();
-    $('#player source#mp3').attr('src', $("#playlist .playing a.to_player").attr("mp3"));
-    $('#player source#ogg').attr('src', $("#playlist .playing a.to_player").attr("ogg"));
-    $('#player').attr('playlist_id', $('#playlist .playing').attr('id'));
-    player.load();
-    player.play();
+    if (control_player == local_player) {
+        var player = $('#player').get(0);
+        player.pause();
+        $('#player source#mp3').attr('src', $("#playlist .playing a.to_player").attr("mp3"));
+        $('#player source#ogg').attr('src', $("#playlist .playing a.to_player").attr("ogg"));
+        $('#player').attr('playlist_id', $('#playlist .playing').attr('id'));
+        player.load();
+        player.play();
+    } else {
+        ws.send(JSON.stringify({
+            action: "play_song",
+            key: "{{ user.id }}",
+            playlist, playlist,
+            player: control_player,
+            identifier: $('#playlist .playing').attr('id')
+        }));
+    }
 }
 function play_next() {
     current = $('#playlist .playing');
@@ -348,7 +361,12 @@ function link_to_playlist() {
         }
         $('#playlist a.to_playlist').click(link_to_playlist);
         $('#playlist a.to_player').click(link_to_player);
-        ws4redis.send_message('update playlist');
+
+        ws.send(JSON.stringify({
+            action: "update_playlist",
+            key: "{{ user.id }}",
+            playlist: playlist
+        }));
     });
     return false;
 }
@@ -362,6 +380,7 @@ function link_to_content() {
     });
     return false;
 }
+
 function update_last_played() {
     $.get('/last_played/', function(data) {
         $('#last_played').html(data);
@@ -409,23 +428,86 @@ function search_delay() {
 	}, 300);
 }
 
+function change_players() {
+    control_player = $(this).val();
+    if (control_player == local_player) {
+        $('#player').css('display', 'inline-block');
+        $('#client-control').hide();
+    } else {
+        $('#player').hide();
+        $('#client-control').css('display', 'inline-block');
+    }
+}
+
 $(document).ready(function() {
     $('#artists-list a, #navigation a.external, a.to_content').click(link_to_content);
     $('#playlist a.to_player').click(link_to_player);
     $('#playlist a.to_playlist').click(link_to_playlist);
     $('#player').bind('ended', play_next);
     $('#searchbox').bind('keyup', search_delay);
+    $('#players').bind('change', change_players);
+    $("#players").append('<option value="' + player + '">' + player + '</option>');
     setInterval(update_last_played, 30000);
     update_last_played();
 
+    ws.onmessage = function(message) {
+        var obj = JSON.parse(message.data);
+
+        if (obj['action'] == 'players') {
+            $("#players").empty();
+            $.each(obj['players'], function(index, item) {
+                var selected = '';
+                if (item['player'] == control_player) {
+                    selected = 'selected';
+                }
+                var name = item['player'];
+                if (item['player'] == local_player) {
+                    name = name + " (this)";
+                }
+                $("#players").append('<option '+ selected +' value="' + item['player'] + '">' + name + '</option>');
+            });
+        } else if(obj['action'] == 'update_playlist') {
+            if (obj['playlist'] == playlist) {
+                //link_to_playlist('');
+                alert('update_playlist');
+            }
+        } else if(obj['action'] == 'song_change') {
+            if (obj['playlist'] == playlist && obj['player'] == control_player) {
+                $('#playlist tr').removeClass('playing');
+                $('#playlist #' + obj['identifier']).addClass('playing');
+            }
+        } else {
+            console.log(obj);
+        }
+
+    }
+    ws.onopen = function() {
+        ws.send(JSON.stringify({
+            action: "register",
+            key: "{{ user.id }}",
+            player: local_player,
+            playlist: playlist
+        }));
+    }
+
     // client control
     $("#client_pause").click(function() {
-        ws4redis.send_message('pause');
+        ws.send(JSON.stringify({
+            action: "pause",
+            key: "{{ user.id }}",
+            player: control_player,
+        }));
+
     });
     $("#client_next").click(function() {
-        ws4redis.send_message('next');
+        ws.send(JSON.stringify({
+            action: "next",
+            key: "{{ user.id }}",
+            player: control_player,
+        }));
     });
 });
+
 </script>
 
 
@@ -480,6 +562,10 @@ $(document).ready(function() {
                 </div>
                 <div id="playlist-container">
                     <div id="player-container">
+                        <div id="player-selector">
+                            <label for="players">Play on:</label>
+                            <select id="players"></select>
+                        </div>
                         <audio controls id="player">
                             <source id="mp3" type="audio/mpeg" />
                             <source id="ogg" type="audio/ogg" />

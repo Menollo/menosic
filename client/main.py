@@ -3,6 +3,7 @@ import threading
 import websocket
 import time
 import sys
+import json
 
 import settings
 from player import Player
@@ -10,12 +11,18 @@ from player import Player
 class WebsocketPlayerControl(object):
 
     def __init__(self, player, server=settings.WS_SERVER):
-        self.ws = websocket.WebSocketApp("%s/ws/player_%d?subscribe-broadcast&publish-broadcast" % (server, settings.PLAYER_ID),
+        self.player_id = 'client'
+        self.player = player
+        self.ws = websocket.WebSocketApp(server,
                               on_message = self.on_message,
                               on_error = self.on_error)
         
-        self.player = player
+        player.song_change_callback = self.song_change
         self.ws.on_open = self.on_open
+
+    def song_change(self, identifier):
+        data = {'action':'song_change', 'player': self.player_id, 'key': settings.CLIENT_TOKEN,  'playlist': settings.PLAYLIST_ID, 'identifier': identifier}
+        self.ws.send(json.dumps(data))
 
     def start(self):
         self.ws.run_forever()
@@ -25,18 +32,23 @@ class WebsocketPlayerControl(object):
         self.ws.close()
 
     def on_open(self, ws):
-        ws.send('client connected')
+        data = {'action':'register', 'player': self.player_id, 'key': settings.CLIENT_TOKEN, 'playlist': settings.PLAYLIST_ID}
+        ws.send(json.dumps(data))
 
     def on_message(self, ws, message):
         print(message)
-        if message == 'play':
+        data = json.loads(message)
+
+        if data['action'] == 'play':
             self.player.play()
-        elif message == 'pause':
+        elif data['action'] == 'pause':
             self.player.pause()
-        elif message == 'update playlist':
+        elif data['action'] == 'update playlist':
             self.player.update_playlist()
-        elif message == 'next':
+        elif data['action'] == 'next':
             self.player.next()
+        elif data['action'] == 'play_song':
+            self.player.play_song(data['identifier'])
 
     def on_error(self, ws, error):
         print(error)

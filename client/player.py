@@ -50,6 +50,7 @@ class Playlist(object):
 
 class Player(object):
     playlist = None
+    song_change_callback = None
 
 
     def __init__(self):
@@ -79,15 +80,14 @@ class Player(object):
     def update_playlist(self):
         current_id = self.playlist.current['id'] if self.playlist else None
 
-        data = jsonurl('%s/client/%d/?token=%s' % (settings.SERVER, settings.PLAYER_ID, settings.CLIENT_TOKEN))
+        data = jsonurl('%s/client/%d/?token=%s' % (settings.SERVER, settings.PLAYLIST_ID, settings.CLIENT_TOKEN))
         if not self.playlist or [t['id'] for t in data['playlist']] != list(self.playlist.tracks.keys()):
             self.playlist = Playlist(data['playlist'], current_id)
 
     def on_message(self, bus, message):
         t = message.type
-        print(t)
         if t == Gst.MessageType.ERROR:
-            err, debug = msg.parse_error()
+            err, debug = message.parse_error()
             print("Error received from element %s: %s" % (msg.src.get_name(), err))
             print("Debugging information: %s" % debug)
         elif t == Gst.MessageType.EOS:
@@ -97,10 +97,17 @@ class Player(object):
             else:
                 print("End of playlist reached..")
 
+
+    def play_song(self, id):
+        self.player.set_state(Gst.State.NULL)
+        self.playlist.goto_track(id)
+        self.play()
+
     def play(self):
         print("Playing: %s - %s" % (self.playlist.current['artist'], self.playlist.current['title']))
         self.player.set_property('uri', "%s?token=%s" % (self.playlist.get_current(), settings.CLIENT_TOKEN))
         self.player.set_state(Gst.State.PLAYING)
+        self.song_change()
 
     def pause(self):
         state = self.player.get_state(10)[1]
@@ -115,3 +122,7 @@ class Player(object):
         self.player.set_state(Gst.State.NULL)
         if self.playlist.next():
             self.play()
+
+    def song_change(self):
+        if self.song_change_callback:
+            self.song_change_callback(self.playlist.current['id'])

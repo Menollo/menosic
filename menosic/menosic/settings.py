@@ -34,7 +34,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ws4redis',
     'menosic',
     'music',
     'music.settings',
@@ -71,7 +70,6 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
-                'ws4redis.context_processors.default',
                 'music.processors.playlist',
                 'music.processors.artists',
             ],
@@ -80,8 +78,7 @@ TEMPLATES = [
 ]
 
 
-#WSGI_APPLICATION = 'menosic.wsgi.application'
-WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+WSGI_APPLICATION = 'menosic.wsgi.application'
 
 
 # Database
@@ -134,10 +131,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT= os.path.join(BASE_DIR, 'static')
 
-# Websockets
-WEBSOCKET_URL = '/ws/'
-
 LOGIN_REDIRECT_URL = '/'
+WS_URL = 'ws://localhost:8001/'
 
 # Text to use for obligated fields (None is strickt mode, raises exception on missing information)
 UNKNOWN_TEXT = 'Unknown'
