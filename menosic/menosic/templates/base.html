@@ -300,8 +300,8 @@ input[type=text] {
 <script>
 var local_player = Math.random().toString(36).replace(/[^a-zA-Z0-9]+/g, '').substr(0, 10);
 var control_player = local_player;
-var ws = new WebSocket('ws://localhost:8001/');
 var playlist = {{ playlist.id }};
+var ws;
 
 var delay = (function(){
   var timer = 0;
@@ -346,9 +346,8 @@ function link_to_player() {
     setTimeout('update_last_played()', 3000)
     return false;
 }
-function link_to_playlist() {
-    var href = $(this).attr('href');
-    $.get(href, function(data) {
+function update_playlist(url, not_notify) {
+    $.get(url, function(data) {
         $("#playlist").html(data);
         if ($("#playlist .playing").length > 0) {
             play_selected();
@@ -361,13 +360,18 @@ function link_to_playlist() {
         }
         $('#playlist a.to_playlist').click(link_to_playlist);
         $('#playlist a.to_player').click(link_to_player);
-
-        ws.send(JSON.stringify({
-            action: "update_playlist",
-            key: "{{ user.id }}",
-            playlist: playlist
-        }));
+        if (!not_notify) {
+            ws.send(JSON.stringify({
+                action: "update_playlist",
+                key: "{{ user.id }}",
+                playlist: playlist
+            }));
+        }
     });
+}
+function link_to_playlist() {
+    var url = $(this).attr('href');
+    update_playlist(url)
     return false;
 }
 
@@ -446,9 +450,11 @@ $(document).ready(function() {
     $('#player').bind('ended', play_next);
     $('#searchbox').bind('keyup', search_delay);
     $('#players').bind('change', change_players);
-    $("#players").append('<option value="' + player + '">' + player + '</option>');
+    $("#players").append('<option value="' + player + '">' + control_player + '</option>');
     setInterval(update_last_played, 30000);
     update_last_played();
+
+    ws = new WebSocket('{{ ws_url }}');
 
     ws.onmessage = function(message) {
         var obj = JSON.parse(message.data);
@@ -460,16 +466,18 @@ $(document).ready(function() {
                 if (item['player'] == control_player) {
                     selected = 'selected';
                 }
-                var name = item['player'];
+
+                var name = item['name']
                 if (item['player'] == local_player) {
                     name = name + " (this)";
+                } else {
+                    name = name + " ("+item['player']+")";
                 }
                 $("#players").append('<option '+ selected +' value="' + item['player'] + '">' + name + '</option>');
             });
         } else if(obj['action'] == 'update_playlist') {
             if (obj['playlist'] == playlist) {
-                //link_to_playlist('');
-                alert('update_playlist');
+                update_playlist("{% url 'playlist' %}", true);
             }
         } else if(obj['action'] == 'song_change') {
             if (obj['playlist'] == playlist && obj['player'] == control_player) {
@@ -486,7 +494,8 @@ $(document).ready(function() {
             action: "register",
             key: "{{ user.id }}",
             player: local_player,
-            playlist: playlist
+            playlist: playlist,
+            name: 'Browser'
         }));
     }
 

@@ -3,6 +3,7 @@ import tornado.websocket
 import json
 
 class Client(object):
+    name = 'Unknown'
     key = None
     player = None
     playlist = None
@@ -41,8 +42,7 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
             data = json.loads(message)  
 
             if hasattr(self, data.get('action')):
-                print('action: ', data['action'])
-                print(data)
+                print('message received: ', data)
                 getattr(self, data['action'])(data)
             else:
                 print('unknown action:', data.get('action'))
@@ -52,6 +52,7 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
 
     def register(self, data):
         self.clients[self].key = data['key']
+        self.clients[self].name = data['name']
         self.clients[self].player = data['player']
         self.clients[self].playlist = int(data['playlist'])
 
@@ -68,7 +69,7 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
             if user in client.allowed_users:
                 clients.append(client)
 
-        response = {'action': 'players', 'players': [{'player': client.player, 'user': client.user.username} for client in clients ]}
+        response = {'action': 'players', 'players': [{'player': client.player, 'name': client.name, 'user': client.user.username} for client in clients ]}
         obj.write_message(json.dumps(response))
 
 
@@ -77,16 +78,16 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
 
     def update_playlist(self, data):
         for obj, client in self.clients.items():
-            if client.playlist == data['playlist']:
-                response = {
-                        'action': 'update_playlist',
-                        'playlist': data['playlist']
-                    }
-                obj.write_message(json.dumps(response))
+            if obj not is self:
+                if client.playlist == data['playlist']:
+                    response = {
+                            'action': 'update_playlist',
+                            'playlist': data['playlist']
+                        }
+                    obj.write_message(json.dumps(response))
 
     def song_change(self, data):
         for obj, client in self.clients.items():
-            print(client.player, client.playlist)
             if client.playlist == data['playlist']:
                 response = {
                         'action': data['action'],
@@ -94,7 +95,6 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
                         'playlist': data['playlist'],
                         'identifier': data['identifier'],
                     }
-                print('schrijf bericht', client.player)
                 obj.write_message(json.dumps(response))
 
     def play_song(self, data):
@@ -106,12 +106,10 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
                         'playlist': data['playlist'],
                         'identifier': data['identifier'],
                     }
-                print('tell client %s to play song.. %s' % (data['player'], data['identifier']))
                 obj.write_message(json.dumps(response))
 
 
     def _player_action(self, data):
-        print(data)
         for obj, client in self.clients.items():
             if client.player == data['player']:
                 response = {'action': data['action'], 'player': data['player']}

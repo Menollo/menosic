@@ -1,3 +1,4 @@
+from django.conf import settings
 import string
 
 from music import helpers
@@ -13,3 +14,13 @@ def playlist(request):
 def artists(request):
     return {'artists': helpers.artists(request),
             'letters': string.ascii_uppercase}
+
+def ws_url(request):
+    ws_url = settings.WS_URL
+    if ws_url[:2] == '//':
+        if request.scheme == 'https':
+            ws_url = 'wss:' + ws_url
+        else:
+            ws_url = 'ws:' + ws_url
+
+    return {'ws_url': ws_url}
