@@ -354,26 +354,33 @@ function link_to_player() {
     setTimeout('update_last_played()', 3000)
     return false;
 }
-function update_playlist(url, not_notify) {
-    $.get(url, function(data) {
-        $("#playlist").html(data);
-        if ($("#playlist .playing").length > 0) {
-            play_selected();
-        } else {
-            var playing_id = $('#player').attr('playlist_id')
-            $('#playlist #'+playing_id).addClass('playing');
-            if($('#playlist .playing').length == 0) {
-                player.pause();
+function update_playlist(url, notify, async) {
+    notify = typeof notify !== 'undefined' ? notify : true;
+    async = typeof async !== 'undefined' ? async : true;
+
+    $.ajax({
+        url: url,
+        async: async,
+        success: function(data) {
+            if (notify) {
+                ws.send(JSON.stringify({
+                    action: "update_playlist",
+                    key: "{{ user.id }}",
+                    playlist: playlist
+                }));
             }
-        }
-        $('#playlist a.to_playlist').click(link_to_playlist);
-        $('#playlist a.to_player').click(link_to_player);
-        if (!not_notify) {
-            ws.send(JSON.stringify({
-                action: "update_playlist",
-                key: "{{ user.id }}",
-                playlist: playlist
-            }));
+            $("#playlist").html(data);
+            if ($("#playlist .playing").length > 0) {
+                play_selected();
+            } else {
+                var playing_id = $('#player').attr('playlist_id')
+                $('#playlist #'+playing_id).addClass('playing');
+                if($('#playlist .playing').length == 0) {
+                    player.pause();
+                }
+            }
+            $('#playlist a.to_playlist').click(link_to_playlist);
+            $('#playlist a.to_player').click(link_to_player);
         }
     });
 }
@@ -485,7 +492,7 @@ $(document).ready(function() {
             });
         } else if(obj['action'] == 'update_playlist') {
             if (obj['playlist'] == playlist) {
-                update_playlist("{% url 'playlist' %}", true);
+                update_playlist("{% url 'playlist' %}", false, false);
             }
         } else if(obj['action'] == 'song_change') {
             if (obj['playlist'] == playlist && obj['player'] == control_player) {
