@@ -2,7 +2,11 @@ from mutagenx.mp4 import MP4
 from music.backend.tags import reader
 
 
-l = reader.list_to_item
+def l(i):
+    item = reader.list_to_item(i)
+    if type(item) == tuple:
+        item = item[0]
+    return item
 
 
 class Track(reader.Track):
