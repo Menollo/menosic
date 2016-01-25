@@ -3,7 +3,7 @@
 {% if not new_albums %}
 <p>No new albums found!</p>
 {% else %}
-<div id="new-albums" class="row">
+<div id="new-albums">
   {% for album in new_albums %}
   <div class="new-album-item">
     <div class="thumbnail">
@@ -20,20 +20,20 @@
     </div>
   </div>
   {% endfor %}
-  {% if is_paginated %}
-     <div class="pagination">
-         <span class="page-links">
-             {% if page_obj.has_previous %}
-                 <a href="{% url "new_albums" %}?page={{ page_obj.previous_page_number }}">previous</a>
-             {% endif %}
-             <span class="page-current">
-                 Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-             </span>
-             {% if page_obj.has_next %}
-                 <a href="{% url "new_albums" %}?page={{ page_obj.next_page_number }}">next</a>
-             {% endif %}
-         </span>
-     </div>
-   {% endif %}
 </div>
+{% if is_paginated %}
+ <div class="pagination">
+     <span class="page-links">
+         {% if page_obj.has_previous %}
+             <a href="{% url "new_albums" %}?page={{ page_obj.previous_page_number }}"><i class="glyphicon glyphicon-backward"></i></a>
+         {% endif %}
+         <span class="page-current">
+             Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+         </span>
+         {% if page_obj.has_next %}
+             <a href="{% url "new_albums" %}?page={{ page_obj.next_page_number }}"><i class="glyphicon glyphicon-forward"></i></a>
+         {% endif %}
+     </span>
+ </div>
+{% endif %}
 {% endif %}

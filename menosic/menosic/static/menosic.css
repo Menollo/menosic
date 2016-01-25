@@ -217,13 +217,18 @@ h3 {
 
 /* new album part */
 
+#new-albums {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+}
+
 .new-album-item {
-  display: block;
-  float: left;
   text-transform: uppercase;
   width: 190px;
   height: 190px;
   overflow: hidden;
+  margin-bottom: 10px;
 }
 .new-album-item .thumbnail {
   width: 190px;
@@ -263,4 +268,8 @@ h3 {
 }
 .new-album-item a:hover {
   color: #aaa;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
 }
