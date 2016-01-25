@@ -1,4 +1,4 @@
 mutagenx
 django
 pillow
-django-websocket-redis
+tornado
