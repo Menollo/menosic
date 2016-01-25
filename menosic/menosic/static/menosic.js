@@ -21,7 +21,7 @@ function play_selected() {
         ws.send(JSON.stringify({
             action: "song_change",
             key: key,
-            playlist, playlist,
+            playlist: playlist,
             player: control_player,
             identifier: $('#playlist .playing').attr('id')
         }));
@@ -29,7 +29,7 @@ function play_selected() {
         ws.send(JSON.stringify({
             action: "play_song",
             key: key,
-            playlist, playlist,
+            playlist: playlist,
             player: control_player,
             identifier: $('#playlist .playing').attr('id')
         }));
@@ -126,9 +126,10 @@ function append_results(div, name, title, data) {
 function search(term) {
     if (term.length > 2) {
         $.getJSON(search_url, {'q': term}, function(data) {
-            $('#meta #search_results').remove();
-            $('#meta').append('<div id="search_results" class="meta_overlay" />');
-            var results = $('#meta #search_results');
+            $('#content-meta #search-results').remove();
+            $('#meta').hide();
+            $('#content-meta').append('<div id="search-results" class="extra" />');
+            var results = $('#content-meta #search-results');
             results.append('<h3 class="glyphicon glyphicon-search">Results</h3>');
 
             append_results(results, 'artists', 'Artists', data['artists']);
@@ -136,7 +137,8 @@ function search(term) {
             append_results(results, 'tracks', 'Tracks', data['tracks']);
         });
     } else {
-        $('#meta #search_results').remove();
+        $('#content-meta #search-results').remove();
+        $('#meta').show();
     }
 }
 
@@ -150,11 +152,11 @@ function search_delay() {
 function change_players() {
     control_player = $(this).val();
     if (control_player == local_player) {
-        $('#player').css('display', 'inline-block');
+        $('#player').show();
         $('#client-control').hide();
     } else {
         $('#player').hide();
-        $('#client-control').css('display', 'inline-block');
+        $('#client-control').css('display', 'flex');
     }
 }
 

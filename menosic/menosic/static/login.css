@@ -1,0 +1,26 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+#registration {
+    width: 320px;
+}
+#registration h1 {
+    margin: 0;
+    padding: 0;
+}
+#registration form {
+    padding: 15px;
+    margin: 0;
+}
+#registration label{
+    width: 100px;
+    display: inline-block;
+}
+#registration input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}

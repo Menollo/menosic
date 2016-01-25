@@ -1,22 +1,25 @@
 {% load static %}
 <html>
 <head>
-    <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
-
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
+    <title>Menosic</title>
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}" />
 
-    <link rel="stylesheet" href="{% static 'menosic.css' %}">
+    {% block head %}
 
-    <script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.2.0.min.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" />
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="{% static 'menosic.css' %}" />
+
+    <script type="text/javascript">
         // menosic variables
         var search_url = "{% url 'search' %}";
 
@@ -28,27 +31,28 @@
         var ws_url = "{{ ws_url }}";
         var ws;
     </script>
-    <script src="{% static 'menosic.js' %}"></script>
+    <script type="text/javascript" src="{% static 'menosic.js' %}"></script>
+    {% endblock head %}
 
 </head>
 
 <body>
 
 {% block all %}
-<div id="outer-container">
-    <div id="header">
-        <div id="header_left">
-            <h1><i class="glyphicon glyphicon-music"></i>Menosic</h1>
+
+    <div id="container">
+        <div id="header">
+            <div>
+                <h1><i class="glyphicon glyphicon-music"></i> Menosic</h1>
+            </div>
+            <div>
+                <a class="to_content" href="{% url "settings:detail" %}"><i class="glyphicon glyphicon-wrench"></i></a>
+                <label for="searchbox" class="glyphicon glyphicon-search"></label>
+                <input id="searchbox" name="search" type="text" />
+            </div>
         </div>
-        <div id="header_right">
-            <a class="to_content" href="{% url "settings:detail" %}"><i class="glyphicon glyphicon-wrench"></i></a>
-            <label for="seachbox" class="glyphicon glyphicon-search"></label>
-            <input id="searchbox" name="search" type="text" />
-        </div>
-    </div>
-    <div id="outer-content-container" class="container-fluid">
-        <div class="row">
-            <div class="col-sm-3 col-md-3" id="artists" data-spy="scroll" data-target="#navigation">
+        <div id="big-part">
+            <div id="artists" data-spy="scroll" data-target="#navigation">
                 <div id="navigation" class="affix">
                   <ul class="nav">
                     <li class="bottom-buffer"><a class="external" href="{% url "random_album" %}"><i class="glyphicon glyphicon-random"></i></a></li>
@@ -64,7 +68,7 @@
                     {% for artist in artists %}
                     {% ifchanged artist.sortkeyname.0 %}
                         </ul>
-                        <span id="{{ artist.sortkeyname.0 }}">{{ artist.sortkeyname.0 }}</span>
+                            <span id="{{ artist.sortkeyname.0 }}">{{ artist.sortkeyname.0 }}</span>
                         <ul>
                     {% endifchanged %}
 
@@ -73,42 +77,35 @@
                   </ul>
                 </div>
             </div>
-
-            <div class="col-sm-6 col-md-6" id="content-container">
-                <div id="content" class="padding">
-                        <h1>Welkom</h1>
-                        <p>Please select a track</p>
-                </div>
-                <div id="playlist-container">
-                    <div id="player-container">
-                        <div id="player-selector">
-                            <label for="players">Play on:</label>
-                            <select id="players"></select>
-                        </div>
-                        <audio controls id="player">
-                            <source id="mp3" type="audio/mpeg" />
-                            <source id="ogg" type="audio/ogg" />
-                            Your browser does not support the audio tag!
-                        </audio>
-                        <div id="client-control">
-                            <i id="client_pause" class="glyphicon glyphicon-pause"></i>
-                            <i id="client_next" class="glyphicon glyphicon-fast-forward"></i>
-                        </div>
-                    </div>
-                    <div id="playlist" class="padding">
-                        {% include 'music/playlist.html' %}
+            <div id="middle-right">
+                <div id="content-meta">
+                    <div id="content">&lt; make a choice</div>
+                    <div id="meta">
+                        <div id="last_played"></div>
                     </div>
                 </div>
-            </div>
-            <div class="col-sm-3 col-md-3 padding" id="meta">
-                <h2>Meta</h2>
-                <div id="last_played">
+                <div id="player-container">
+                    <div id="player-selector">
+                        <label for="players">Play on:</label>
+                        <select id="players"></select>
+                    </div>
+                    <audio controls id="player">
+                        <source id="mp3" type="audio/mpeg" />
+                        <source id="ogg" type="audio/ogg" />
+                        Your browser does not support the audio tag!
+                    </audio>
+                    <div id="client-control">
+                        <i id="client_pause" class="glyphicon glyphicon-pause"></i>
+                        <i id="client_next" class="glyphicon glyphicon-fast-forward"></i>
+                    </div>
+                </div>
+                <div id="playlist">
+                    {% include 'music/playlist.html' %}
                 </div>
             </div>
-
         </div>
     </div>
-<div>
+
 {% endblock all %}
 
 </body>
