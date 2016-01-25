@@ -168,6 +168,7 @@ class PlayerJSON(JSONResponseMixin, BaseDetailView):
             'sort': pt.sort_order,
             'mp3': pt.track.get_mp3_url(),
             'ogg': pt.track.get_ogg_url(),
+            'original': pt.track.get_original_url(),
             'length': pt.track.length,
             'title': str(pt.track.title),
             'album': str(pt.track.album.title),
@@ -241,7 +242,7 @@ class ServeFileMixin(object):
         if 'output' in kwargs:
             self.output = kwargs['output']
 
-        if self.output == self.track.filetype:
+        if self.output == 'original' or self.output == self.track.filetype:
             return self.serve_directly()
         else:
             return self.convert()

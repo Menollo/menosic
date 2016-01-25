@@ -250,6 +250,10 @@ class Track(models.Model):
         from django.core.urlresolvers import reverse
         return reverse('track', args=['ogg', self.pk])
 
+    def get_original_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('track', args=['original', self.pk])
+
 
 # Playlist stuff
 class Playlist(models.Model):

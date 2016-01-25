@@ -38,7 +38,7 @@ class Playlist(object):
             return False
 
     def get_current(self):
-        return "%s%s" % (settings.SERVER, self.current['mp3'])
+        return "%s%s" % (settings.SERVER, self.current['original'])
 
     def next(self):
         try:
