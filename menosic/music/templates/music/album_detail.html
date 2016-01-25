@@ -8,7 +8,8 @@
   {% endif %}
   <h2>{{ album.title }}</h2>
 </div>
-<p><a class="to_playlist" href="{% url 'add_album' album.id %}">+ add album to playlist</a></p>
+<p><a class="to_playlist" href="{% url 'add_album' album.id %}"><i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-th-list"></i> add whole album to playlist</a></p>
+        </a></td>
 
 
 <table class="table table-hover">
@@ -28,7 +29,7 @@
     </tr>
     {% endifchanged %}
     <tr>
-        <td><a class="to_playlist" href="{% url 'add_track' track.id %}">+ add</a></td>
+        <td><a class="to_playlist add_to_playlist" href="{% url 'add_track' track.id %}"><i class="glyphicon glyphicon-plus"></i></a></td>
         <td>{{ track.tracknumber }}</td>
         <td><a class="to_playlist" href="{% url 'play_album_track' track.id %}">{{ track.title }}</a>
         <td>{{ track.duration }}</td>
