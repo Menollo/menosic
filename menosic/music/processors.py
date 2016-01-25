@@ -1,5 +1,4 @@
 from django.conf import settings
-import string
 
 from music import helpers
 
@@ -9,11 +8,6 @@ def playlist(request):
     if request.user.is_authenticated():
         _playlist = helpers.player_for_user(request.user).playlist
     return {'playlist': _playlist}
-
-
-def artists(request):
-    return {'artists': helpers.artists(request),
-            'letters': string.ascii_uppercase}
 
 def ws_url(request):
     ws_url = settings.WS_URL

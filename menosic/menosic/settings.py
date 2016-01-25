@@ -71,7 +71,6 @@ TEMPLATES = [
                 "django.template.context_processors.static",
                 "django.template.context_processors.tz",
                 'music.processors.playlist',
-                'music.processors.artists',
                 'music.processors.ws_url',
             ],
         },

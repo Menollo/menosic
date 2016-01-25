@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import subprocess
+import string
 
 from PIL import Image
 
@@ -17,6 +18,16 @@ from django.views.generic.detail import SingleObjectMixin, BaseDetailView
 from music import helpers, models, search
 from music.backend import files as files_backend
 
+class HomePageView(TemplateView):
+    template_name = 'base.html'
+
+    def get_context_data(self, **kwargs):
+        data = {
+            'artists': helpers.artists(self.request),
+            'letters': string.ascii_uppercase,
+            'new_albums': models.Album.objects.order_by('-pk')[:12]
+            }
+        return data
 
 # browse views
 class ArtistDetailView(DetailView):

@@ -7,7 +7,7 @@ from music import views
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^$', login_required(TemplateView.as_view(template_name='base.html')), name='home'),
+    url(r'^$', login_required(views.HomePageView.as_view()), name='home'),
     url(r'^playlist/$', views.TemplateView.as_view(template_name='music/playlist.html'), name='playlist'),
     url(r'^artist/(?P<pk>\d+)/$', views.ArtistDetailView.as_view(), name='artist_detail'),
     url(r'^browse/(?P<collection>\d+)/(?P<path>\w+)/$', views.BrowseView.as_view(), name='browse'),
