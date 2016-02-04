@@ -39,6 +39,12 @@ class Collection(models.Model):
 class Genre(models.Model):
     name = models.CharField(max_length=255, db_index=True)
 
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('genre_detail', args=[self.pk])
+
+    def artists(self):
+        return self.artist_set.exclude(album=None)
 
 class Country(models.Model):
     name = models.CharField(max_length=255, db_index=True)

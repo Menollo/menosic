@@ -31,6 +31,8 @@ urlpatterns = [
     url(r'^album/random/$', views.RandomAlbumRedirect.as_view(), name='random_album'),
     url(r'^album/new/$', views.NewAlbumList.as_view(), name="new_albums"),
 
+    url(r'^genre/(?P<pk>\d+)/$', views.GenreDetailView.as_view(), name='genre_detail'),
+
     url(r'^settings/', include('music.settings.urls', namespace='settings')),
     url(r'^search/', views.SearchView.as_view(), name='search'),
 ]

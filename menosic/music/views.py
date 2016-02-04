@@ -25,7 +25,8 @@ class HomePageView(TemplateView):
         data = {
             'artists': helpers.artists(self.request),
             'letters': string.ascii_uppercase,
-            'new_albums': models.Album.objects.order_by('-pk')[:12]
+            'new_albums': models.Album.objects.order_by('-pk')[:12],
+            'genres': models.Genre.objects.order_by('name')
             }
         return data
 
@@ -40,6 +41,10 @@ class AlbumDetailView(DetailView):
 
 class TrackDetailView(DetailView):
     model = models.Track
+
+
+class GenreDetailView(DetailView):
+    model = models.Genre
 
 
 class BrowseView(TemplateView):

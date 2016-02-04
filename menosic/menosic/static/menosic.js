@@ -161,7 +161,7 @@ function change_players() {
 }
 
 $(document).ready(function() {
-    $('#artists-list a, #navigation a.external, a.to_content, #content a').click(link_to_content);
+    $('#left-content a, #navigation a.external, a.to_content, #content a').click(link_to_content);
     $('#playlist a.to_player').click(link_to_player);
     $('#playlist a.to_playlist').click(link_to_playlist);
     $('#player').bind('ended', play_next);
@@ -170,6 +170,11 @@ $(document).ready(function() {
     $("#players").append('<option value="' + player + '">' + control_player + '</option>');
     setInterval(update_last_played, 30000);
     update_last_played();
+
+    $('#left-tabs a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    })
 
     ws = new WebSocket(ws_url);
 

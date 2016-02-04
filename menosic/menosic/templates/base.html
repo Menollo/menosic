@@ -52,31 +52,54 @@
             </div>
         </div>
         <div id="big-part">
-            <div id="artists" data-spy="scroll" data-target="#navigation">
-                <div id="navigation" class="affix">
-                  <ul class="nav">
-                    <li class="bottom-buffer"><a class="external" href="{% url "random_album" %}"><i class="glyphicon glyphicon-random"></i></a></li>
-                    <li class="bottom-buffer"><a class="external" href="{% url "new_albums" %}"><i class="glyphicon glyphicon-plus"></i></a></li>
-                  {% for letter in letters %}
-                    <li><a href="#{{ letter }}">{{ letter }}</a></li>
-                  {% endfor %}
-                  </ul>
-                </div>
-                <div id="artists-list">
-                  <h2>Artists</h2>
-                  <ul class="nav nav-sidebar">
-                    {% for artist in artists %}
-                    {% ifchanged artist.sortkeyname.0 %}
-                        </ul>
-                            <span id="{{ artist.sortkeyname.0 }}">{{ artist.sortkeyname.0 }}</span>
-                        <ul>
-                    {% endifchanged %}
+            <div id="left">
 
-                    <li><a href="{{ artist.url }}">{{ artist.name }}</a></li>
-                    {% endfor %}
-                  </ul>
-                </div>
-            </div>
+                <ul class="nav nav-tabs" role="tablist" id="left-tabs">
+                    <li role="presentation" class="active"><a href="#artists" aria-controls="artists" role="tab" data-toggle="tab">Artists</a></li>
+                    <li role="presentation"><a href="#genres" aria-controls="genres" role="tab" data-toggle="tab">Genres</a></li>
+
+                </ul>
+
+                <div class="tab-content" id="left-content" data-spy="scroll" data-target="#navigation">
+                    <div role="tabpanel" class="tab-pane active" id="artists">
+
+                        <div id="navigation" class="affix">
+                          <ul class="nav">
+                            <li class="bottom-buffer"><a class="external" href="{% url "random_album" %}"><i class="glyphicon glyphicon-random"></i></a></li>
+                            <li class="bottom-buffer"><a class="external" href="{% url "new_albums" %}"><i class="glyphicon glyphicon-plus"></i></a></li>
+                          {% for letter in letters %}
+                            <li><a href="#{{ letter }}">{{ letter }}</a></li>
+                          {% endfor %}
+                          </ul>
+                        </div>
+                        <div id="artists-list">
+                          <h2>Artists</h2>
+                          <ul class="nav nav-sidebar">
+                            {% for artist in artists %}
+                            {% ifchanged artist.sortkeyname.0 %}
+                                </ul>
+                                    <span id="{{ artist.sortkeyname.0 }}">{{ artist.sortkeyname.0 }}</span>
+                                <ul>
+                            {% endifchanged %}
+
+                            <li><a href="{{ artist.url }}">{{ artist.name }}</a></li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+
+                    </div> <!-- artists -->
+
+                    <div role="tabpanel" class="tab-pane" id="genres">
+                        <h2>Genres</h2>
+                        <ul>
+                            {% for genre in genres %}
+                            <li><a href="{{ genre.get_absolute_url }}">{{ genre.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div> <!-- genres -->
+                </div><!-- left-content -->
+
+            </div> <!-- left -->
             <div id="middle-right">
                 <div id="content-meta">
                     <div id="content">

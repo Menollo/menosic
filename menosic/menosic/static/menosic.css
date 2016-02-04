@@ -45,15 +45,21 @@
     min-height:0; /* hack for firefox */
 }
 
-/* artists */
+/* left */
 
-#artists {
+#left {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    border-right: 1px solid #ddd;
+}
+#left-content {
     flex: 1;
     overflow-y: scroll;
-    border-right: 1px solid #ddd;
 }
 #artists-list {
     margin-left: 40px;
+    padding-top: 10px;
     font-size: 12px;
 }
 #navigation {
@@ -78,6 +84,9 @@
     font-weight: 400;
 }
 
+#genres {
+    padding: 20px;
+}
 /* Middle part */
 
 #middle-right {
@@ -97,6 +106,7 @@
 /* content */
 
 h2 {
+    margin-top: 0;
     font-size: 22px;
 }
 #content {
