@@ -123,7 +123,9 @@ function append_results(div, name, title, data) {
 
 }
 
+var last_search_keystroke = Date.now();
 function search(term) {
+    last_search_keystroke = Date.now();
     if (term.length > 2) {
         $.getJSON(search_url, {'q': term}, function(data) {
             $('#content-meta #search-results').remove();
@@ -166,6 +168,12 @@ $(document).ready(function() {
     $('#playlist a.to_playlist').click(link_to_playlist);
     $('#player').bind('ended', play_next);
     $('#searchbox').bind('keyup', search_delay);
+    $('#searchbox').bind('focus', function() {
+        // clear search field on focus after 10 sec..
+        if ((Date.now() - last_search_keystroke) > 10000) {
+            $(this).val('');
+        }
+    });
     $('#players').bind('change', change_players);
     $("#players").append('<option value="' + player + '">' + control_player + '</option>');
     setInterval(update_last_played, 30000);
