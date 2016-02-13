@@ -1,4 +1,4 @@
-<a href="{{ album.artists.all.0.get_absolute_url }}">{{ album.artists.all.0.name }}</a> / {{ album.title }}
+<a href="{{ album.artist.get_absolute_url }}">{{ album.artist.name }}</a> / {{ album.title }}
 
 <div class="album">
   {% if album.cover %}

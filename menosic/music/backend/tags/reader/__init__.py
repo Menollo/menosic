@@ -27,6 +27,7 @@ class Track(object):
         self.tracknumber = None  # int
         self.title = None  # string
         self.album = None  # class
+        self.artist = None  # class
         self.artists = []  # list classes
         self.genres = []  # list strings
         self.length = None  # int
@@ -45,7 +46,7 @@ class Album(object):
         self.country = None  # string
         self.musicbrainz_albumid = None  # uuid/string
         self.musicbrainz_releasegroupid = None  # uuid/string
-        self.albumartists = []  # list classes
+        self.artist = None
         self.labels = []  # list strings
         self.albumtypes = []  # list strings
         self.albumstatus = []  # list strings

@@ -26,7 +26,12 @@ class Track(reader.Track):
         artist.name = l(f.get('Author'))
         artist.sortname = l(f.get('WM/ArtistSortOrder'))
         #artist.musicbrainz_artistid = self.mp3.get('TXXX:MusicBrainz Artist Id')[0]
-        self.artists.append(artist)
+        self.artist = artist
+
+        for a in f.get('WM/ARTISTS'):
+            artist = reader.Artist()
+            artist.name = a
+            self.artists.append(artist)
 
         album = reader.Album()
         album.title = l(f.get('WM/AlbumTitle'))
@@ -41,6 +46,6 @@ class Track(reader.Track):
         albumartist = reader.Artist()
         albumartist.name = l(f.get('WM/AlbumArtist'))
         albumartist.sortname = l(f.get('WM/AlbumArtistSortOrder'))
-        album.albumartists.append(albumartist)
+        album.artist = albumartist
 
         self.album = album

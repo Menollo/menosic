@@ -67,6 +67,9 @@ class Artist(models.Model):
             ('collection', 'name'),
         )
 
+    def __str__(self):
+        return self.name
+
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('artist_detail', args=[self.pk])
@@ -86,7 +89,7 @@ class Label(models.Model):
 
 class Album(models.Model):
     title = models.CharField(max_length=255, db_index=True)
-    artists = models.ManyToManyField(Artist)
+    artist = models.ForeignKey(Artist)
     date = models.CharField(max_length=15, null=True, db_index=True)
     genres = models.ManyToManyField(Genre)
     country = models.ForeignKey(Country, null=True)
@@ -106,16 +109,15 @@ class Album(models.Model):
             ('collection', 'path'),
             ('collection', 'musicbrainz_albumid'))
 
+    def __str__(self):
+        return self.title
+
     @property
     def year(self):
         if self.date:
             return self.date[:4]
         else:
             return '0000'
-
-    @property
-    def artist(self):
-        return self.artists.all()[0].name
 
     @property
     def album_types(self):
@@ -191,16 +193,13 @@ class Album(models.Model):
                     except urllib.error.URLError:
                         print("error while downloading cover for {artist} - {album} on url: {url}".format(artist=self.artist, album=self.title, url=image_url))
 
-            #if not self._mbid_cover_download(
-
-
-
 
 class Track(models.Model):
     discnumber = models.PositiveIntegerField(null=True)
     tracknumber = models.PositiveIntegerField(null=True)
     title = models.CharField(max_length=255)
     album = models.ForeignKey(Album, null=True)
+    artist = models.ForeignKey(Artist, related_name='track_display_set')
     artists = models.ManyToManyField(Artist)
     length = models.PositiveIntegerField(null=True)
     bitrate = models.PositiveIntegerField(null=True)
@@ -217,6 +216,9 @@ class Track(models.Model):
         unique_together = (
             ('collection', 'path'),)
 
+    def __str__(self):
+        return self.title
+
     @property
     def full_path(self):
         return self.path
@@ -230,10 +232,6 @@ class Track(models.Model):
     @property
     def sendfile_location(self):
         return urlquote("%s%s" % (self.collection.sendfile_location, self.relative_path))
-
-    @property
-    def artist(self):
-        return ", ".join([a.name for a in self.artists.all()])
 
     @property
     def duration(self):

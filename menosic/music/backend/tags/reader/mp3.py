@@ -22,7 +22,12 @@ class Track(reader.Track):
         artist.name = self.mp3.get('TPE1')
         artist.sortname = self.mp3.get('TSOP')
         #artist.musicbrainz_artistid = self.mp3.get('TXXX:MusicBrainz Artist Id')[0]
-        self.artists.append(artist)
+        self.artist = artist
+
+        for a in self.mp3.get('TXXX:Artists'):
+            artist = reader.Artist()
+            artist.name = a
+            self.artists.append(artist)
 
         album = reader.Album()
         album.title = self.mp3.get('TALB')
@@ -37,6 +42,6 @@ class Track(reader.Track):
         albumartist = reader.Artist()
         albumartist.name = self.mp3.get('TPE2')
         albumartist.sortname = self.mp3.get('TSO2')
-        album.albumartists.append(albumartist)
+        album.artist = albumartist
 
         self.album = album

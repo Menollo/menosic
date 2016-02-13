@@ -30,7 +30,12 @@ class Track(reader.Track):
         artist.name = l(f.get(b'\xa9ART'))
         artist.sortname = l(f.get(b'soar'))
         #artist.musicbrainz_artistid = self.mp3.get('TXXX:MusicBrainz Artist Id')[0]
-        self.artists.append(artist)
+        self.artist = artist
+
+        for a in f.get(b'----:com.apple.iTunes:ARTISTS'):
+            artist = reader.Artist()
+            artist.name = a
+            self.artists.append(artist)
 
         album = reader.Album()
         album.title = l(f.get(b'\xa9alb'))
@@ -45,6 +50,6 @@ class Track(reader.Track):
         albumartist = reader.Artist()
         albumartist.name = l(f.get(b'aART'))
         albumartist.sortname = l(f.get(b'soaa'))
-        album.albumartists.append(albumartist)
+        album.artist = albumartist
 
         self.album = album
