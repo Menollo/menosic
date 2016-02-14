@@ -163,7 +163,7 @@ function change_players() {
 }
 
 $(document).ready(function() {
-    $('#left-content a, #navigation a.external, a.to_content, #content a').not('#navigation a').click(link_to_content);
+    $('#artist-list a, #genres a, #navigation a.external, a.to_content, #content a').click(link_to_content);
     $('#playlist a.to_player').click(link_to_player);
     $('#playlist a.to_playlist').click(link_to_playlist);
     $('#player').bind('ended', play_next);
