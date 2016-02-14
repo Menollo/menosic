@@ -360,12 +360,12 @@ class SearchView(JSONResponseMixin, TemplateView):
         artist_url = reverse('artist_detail', args=(0,))
         data['artists'] = list(map(lambda x: {'name': x['name'], 'url': artist_url.replace('0', str(x['id']))}, artists))
 
-        albums = search.search_albums(q).values('title', 'id', 'artists__name')
+        albums = search.search_albums(q).values('title', 'id', 'artist__name')
         album_url = reverse('album_detail', args=(0,))
-        data['albums'] = list(map(lambda x: {'title': x['title'], 'artist': x['artists__name'], 'url': album_url.replace('0', str(x['id']))}, albums))
+        data['albums'] = list(map(lambda x: {'title': x['title'], 'artist': x['artist__name'], 'url': album_url.replace('0', str(x['id']))}, albums))
 
-        tracks = search.search_tracks(q).values('title', 'album__id', 'artists__name')
+        tracks = search.search_tracks(q).values('title', 'album__id', 'artist__name', 'artists__name')
         album_url = reverse('album_detail', args=(0,))
-        data['tracks'] = list(map(lambda x: {'title': x['title'], 'artist': x['artists__name'], 'url': album_url.replace('0', str(x['album__id']))}, tracks))
+        data['tracks'] = list(map(lambda x: {'title': x['title'], 'artist': x['artist__name'], 'url': album_url.replace('0', str(x['album__id']))}, tracks))
 
         return data
