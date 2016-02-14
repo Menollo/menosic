@@ -6,6 +6,7 @@ import urllib.request
 import datetime
 import importlib
 import mimetypes
+from collections import defaultdict
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import models
@@ -73,6 +74,12 @@ class Artist(models.Model):
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('artist_detail', args=[self.pk])
+
+    def related_artists(self):
+        return Artist.objects.filter(track__artists=self).exclude(id=self.id).distinct()
+
+    def related_albums(self):
+        return Album.objects.filter(track__artists=self).exclude(artist=self).distinct()
 
 
 class AlbumType(models.Model):

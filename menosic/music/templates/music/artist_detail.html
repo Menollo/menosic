@@ -1,6 +1,13 @@
 {{ artist.name }}
 
 <h2>{{ artist.name }}</h2>
+
+<ul class="related">
+{% for artist in artist.related_artists %}
+    <li><a href="{{ artist.get_absolute_url }}">{{ artist }}</a>, </li>
+{% endfor %}
+</ul>
+
 {% with albums=artist.album_set.all %}
   {% if albums.count > 1 %}<a href="{% url "random_album" artist.pk %}"><i class="glyphicon glyphicon-random"></i></a>{% endif %}
   <ul id="album_list">
@@ -13,3 +20,15 @@
   {% endfor %}
   </ul>
 {% endwith %}
+
+{% if artist.related_albums %}
+    <h3>Related Albums</h3>
+
+    <ul id="album_list">
+    {% for album in artist.related_albums %}
+    <li class="{% for album_type in album.album_types %}albumtype-{{ album_type }} {% endfor %}"><a href="{{ album.get_absolute_url }}">{{ album.year }} - {{ album.artist }} - {{ album.title }}
+          {% if album.album_types %}({% for album_type in album.album_types %}{{ album_type }}{% if not forloop.last %}, {% endif %}{% endfor %}){% endif %}
+    </a></li>
+    {% endfor %}
+    </ul>
+{% endif %}

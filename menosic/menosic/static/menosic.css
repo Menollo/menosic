@@ -121,6 +121,10 @@ h2 {
     width: 200px;
 }
 
+.related li {
+    display: inline
+}
+
 /* meta */
 
 h3 {
