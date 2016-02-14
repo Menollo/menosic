@@ -124,7 +124,7 @@ class Album(models.Model):
         if self.date:
             return self.date[:4]
         else:
-            return '0000'
+            return None
 
     @property
     def album_types(self):
