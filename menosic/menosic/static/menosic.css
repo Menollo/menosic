@@ -57,7 +57,7 @@
     flex: 1;
     overflow-y: scroll;
 }
-#artists-list {
+#artist-list {
     margin-left: 40px;
     padding-top: 10px;
     font-size: 12px;
