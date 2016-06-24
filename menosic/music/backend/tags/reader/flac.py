@@ -28,7 +28,7 @@ class Track(reader.Track):
         #artist.musicbrainz_artistid = self.mp3.get('TXXX:MusicBrainz Artist Id')[0]
         self.artist = artist
 
-        for a in f.get('Artists'):
+        for a in f.get('Artists', []):
             artist = reader.Artist()
             artist.name = a
             self.artists.append(artist)
