@@ -6,6 +6,7 @@ import sys
 import json
 import string
 import random
+import ssl
 
 import settings
 from player import Player
@@ -27,7 +28,7 @@ class WebsocketPlayerControl(object):
         self.ws.send(json.dumps(data))
 
     def start(self):
-        self.ws.run_forever()
+        self.ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
 
     def quit(self):
         self.ws.send("client disconnect")
