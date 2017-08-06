@@ -184,69 +184,79 @@ $(document).ready(function() {
         $(this).tab('show');
     })
 
-    ws = new WebSocket(ws_url);
+    function websocket_connect() {
+        ws = new WebSocket(ws_url);
 
-    ws.onmessage = function(message) {
-        var obj = JSON.parse(message.data);
+        ws.onmessage = function(message) {
+            var obj = JSON.parse(message.data);
 
-        if (obj['action'] == 'players') {
-            $("#players").empty();
-            $.each(obj['players'], function(index, item) {
-                var selected = '';
-                if (item['player'] == control_player) {
-                    selected = 'selected';
-                }
+            if (obj['action'] == 'players') {
+                $("#players").empty();
+                $.each(obj['players'], function(index, item) {
+                    var selected = '';
+                    if (item['player'] == control_player) {
+                        selected = 'selected';
+                    }
 
-                var name = item['name']
-                if (item['player'] == local_player) {
-                    name = name + " (this)";
-                } else {
-                    name = name + " ("+item['player']+")";
+                    var name = item['name']
+                    if (item['player'] == local_player) {
+                        name = name + " (this)";
+                    } else {
+                        name = name + " ("+item['player']+")";
+                    }
+                    $("#players").append('<option '+ selected +' value="' + item['player'] + '">' + name + '</option>');
+                });
+            } else if(obj['action'] == 'update_playlist') {
+                if (obj['playlist'] == playlist) {
+                    update_playlist(playlist_url, false, false);
                 }
-                $("#players").append('<option '+ selected +' value="' + item['player'] + '">' + name + '</option>');
-            });
-        } else if(obj['action'] == 'update_playlist') {
-            if (obj['playlist'] == playlist) {
-                update_playlist(playlist_url, false, false);
-            }
-        } else if(obj['action'] == 'song_change') {
-            if (obj['playlist'] == playlist && obj['player'] == control_player) {
-                $('#playlist tr').removeClass('playing');
-                $('#playlist #' + obj['identifier']).addClass('playing');
-            }
-        } else if(obj['action'] == 'pause') {
-            if (obj['player'] == control_player) {
-                var player = $('#player').get(0);
-                if (player.paused) {
-                    player.play();
-                } else {
-                    player.pause();
+            } else if(obj['action'] == 'song_change') {
+                if (obj['playlist'] == playlist && obj['player'] == control_player) {
+                    $('#playlist tr').removeClass('playing');
+                    $('#playlist #' + obj['identifier']).addClass('playing');
                 }
+            } else if(obj['action'] == 'pause') {
+                if (obj['player'] == control_player) {
+                    var player = $('#player').get(0);
+                    if (player.paused) {
+                        player.play();
+                    } else {
+                        player.pause();
+                    }
+                }
+            } else if(obj['action'] == 'next') {
+                if (obj['player'] == control_player) {
+                    play_next();
+                }
+            } else if(obj['action'] == 'play_song') {
+                if (obj['playlist'] == playlist && obj['player'] == control_player) {
+                    $('#playlist tr').removeClass('playing');
+                    $('#playlist #' + obj['identifier']).addClass('playing');
+                    play_selected();
+                }
+            } else {
+                console.log(obj);
             }
-        } else if(obj['action'] == 'next') {
-            if (obj['player'] == control_player) {
-                play_next();
-            }
-        } else if(obj['action'] == 'play_song') {
-            if (obj['playlist'] == playlist && obj['player'] == control_player) {
-                $('#playlist tr').removeClass('playing');
-                $('#playlist #' + obj['identifier']).addClass('playing');
-                play_selected();
-            }
-        } else {
-            console.log(obj);
+
+        }
+        ws.onopen = function() {
+            ws.send(JSON.stringify({
+                action: "register",
+                key: key,
+                player: local_player,
+                playlist: playlist,
+                name: 'Browser'
+            }));
         }
 
+       ws.onclose = function() {
+           setTimout(function() {
+               websocket_connect()
+           }, 1000);
+       };
+
     }
-    ws.onopen = function() {
-        ws.send(JSON.stringify({
-            action: "register",
-            key: key,
-            player: local_player,
-            playlist: playlist,
-            name: 'Browser'
-        }));
-    }
+    websocket_connect();
 
     // client control
     $("#client_pause").click(function() {
