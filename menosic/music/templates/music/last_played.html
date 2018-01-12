@@ -11,7 +11,7 @@
   </div>
   {% if last_played.track.album.cover %}
     <div class="album-cover">
-      <img src="{% url 'cover' last_played.track.album.pk %}">
+      <img src="{% url 'music:cover' last_played.track.album.pk %}">
     </div>
   {% endif %}
   <p class="clear">{{ last_played.minutes_ago }} minutes ago</p>

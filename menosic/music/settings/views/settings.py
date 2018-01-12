@@ -1,5 +1,5 @@
 # menosic/music/settings/views/settings.py
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import Http404
 from django.views.generic import UpdateView
 
@@ -22,4 +22,4 @@ class MusicSettingsView(UpdateView):
             raise Http404
 
     def get_success_url(self):
-        return reverse("home")
+        return reverse("music:home")

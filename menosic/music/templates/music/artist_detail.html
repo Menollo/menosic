@@ -9,7 +9,7 @@
 </ul>
 
 {% with albums=artist.album_set.all %}
-  {% if albums.count > 1 %}<a href="{% url "random_album" artist.pk %}"><i class="glyphicon glyphicon-random"></i></a>{% endif %}
+  {% if albums.count > 1 %}<a href="{% url "music:random_album" artist.pk %}"><i class="glyphicon glyphicon-random"></i></a>{% endif %}
   <ul id="album_list">
   {% for album in albums %}
   <li class="{% for album_type in album.album_types %}albumtype-{{ album_type }} {% endfor %}"><a href="{{ album.get_absolute_url }}">{% if album.year %}{{ album.year }} - {% endif %}{{ album.title }}

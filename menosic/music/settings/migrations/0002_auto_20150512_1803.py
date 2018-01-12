@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
+
 from django.conf import settings
 
 
@@ -20,6 +22,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='musicsettings',
             name='user',
-            field=models.OneToOneField(to=settings.AUTH_USER_MODEL),
+            field=models.OneToOneField(to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

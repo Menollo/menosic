@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
+
 from django.conf import settings
 import music.fields
 
@@ -112,7 +114,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('file_path', models.CharField(max_length=255, null=True)),
                 ('time', models.DateTimeField(auto_now=True)),
-                ('collection', models.ForeignKey(to='music.Collection')),
+                ('collection', models.ForeignKey(to='music.Collection', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'ordering': ['-time'],
@@ -133,7 +135,7 @@ class Migration(migrations.Migration):
             name='Playlist',
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
             },
@@ -145,8 +147,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('file_path', models.CharField(max_length=255, null=True)),
                 ('sort_order', models.IntegerField()),
-                ('collection', models.ForeignKey(to='music.Collection')),
-                ('playlist', models.ForeignKey(to='music.Playlist')),
+                ('collection', models.ForeignKey(to='music.Collection', on_delete=django.db.models.deletion.CASCADE)),
+                ('playlist', models.ForeignKey(to='music.Playlist', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'ordering': ['sort_order'],
@@ -167,9 +169,9 @@ class Migration(migrations.Migration):
                 ('mtime', models.DateTimeField(null=True)),
                 ('path', models.CharField(max_length=255, db_index=True)),
                 ('musicbrainz_trackid', music.fields.UUIDField(max_length=32, blank=True, null=True)),
-                ('album', models.ForeignKey(null=True, to='music.Album')),
+                ('album', models.ForeignKey(null=True, to='music.Album', on_delete=django.db.models.deletion.CASCADE)),
                 ('artists', models.ManyToManyField(null=True, to='music.Artist')),
-                ('collection', models.ForeignKey(to='music.Collection')),
+                ('collection', models.ForeignKey(to='music.Collection', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'ordering': ['discnumber', 'tracknumber'],
@@ -183,43 +185,43 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='playlisttrack',
             name='tags_track',
-            field=models.ForeignKey(null=True, to='music.Track'),
+            field=models.ForeignKey(null=True, to='music.Track', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='player',
             name='playlist',
-            field=models.OneToOneField(to='music.Playlist'),
+            field=models.OneToOneField(to='music.Playlist', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='player',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='lastplayed',
             name='tags_track',
-            field=models.ForeignKey(null=True, to='music.Track'),
+            field=models.ForeignKey(null=True, to='music.Track', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='lastplayed',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='artist',
             name='collection',
-            field=models.ForeignKey(to='music.Collection'),
+            field=models.ForeignKey(to='music.Collection', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='artist',
             name='country',
-            field=models.ForeignKey(null=True, to='music.Country'),
+            field=models.ForeignKey(null=True, to='music.Country', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -253,13 +255,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='album',
             name='collection',
-            field=models.ForeignKey(to='music.Collection'),
+            field=models.ForeignKey(to='music.Collection', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='album',
             name='country',
-            field=models.ForeignKey(null=True, to='music.Country'),
+            field=models.ForeignKey(null=True, to='music.Country', on_delete=django.db.models.deletion.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(

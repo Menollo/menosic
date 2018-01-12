@@ -12,9 +12,9 @@
 {% for pt in playlist.tracks %}
     <tr id="{{ pt.identifier }}" {% if pt.identifier == current %}class="playing"{% endif %}>
         <td>
-            <a class="to_playlist" href="{% url 'edit_playlist_track' pt.id 'remove' %}"><i class="glyphicon glyphicon-trash"></i></a>
-            <a class="to_playlist" href="{% url 'edit_playlist_track' pt.id 'up' %}"><i class="glyphicon glyphicon-menu-up"></i></a>
-            <a class="to_playlist" href="{% url 'edit_playlist_track' pt.id 'down' %}"><i class="glyphicon glyphicon-menu-down"></i></a>
+            <a class="to_playlist" href="{% url 'music:edit_playlist_track' pt.id 'remove' %}"><i class="glyphicon glyphicon-trash"></i></a>
+            <a class="to_playlist" href="{% url 'music:edit_playlist_track' pt.id 'up' %}"><i class="glyphicon glyphicon-menu-up"></i></a>
+            <a class="to_playlist" href="{% url 'music:edit_playlist_track' pt.id 'down' %}"><i class="glyphicon glyphicon-menu-down"></i></a>
         </td>
         <td><a class="to_player" mp3="{{ pt.track.get_mp3_url }}" ogg="{{ pt.track.get_ogg_url }}">{{ pt.track.title }}</a></td>
         <td>{{ pt.track.artist }}</td>

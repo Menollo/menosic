@@ -41,8 +41,8 @@ class Genre(models.Model):
     name = models.CharField(max_length=255, db_index=True)
 
     def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
-        return reverse('genre_detail', args=[self.pk])
+        from django.urls import reverse
+        return reverse('music:genre_detail', args=[self.pk])
 
     def artists(self):
         return self.artist_set.exclude(album=None)
@@ -55,9 +55,9 @@ class Artist(models.Model):
     name = models.CharField(max_length=255, db_index=True)
     sortname = models.CharField(max_length=255, db_index=True)
     genres = models.ManyToManyField(Genre)
-    country = models.ForeignKey(Country, null=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     path = models.CharField(max_length=255, db_index=True, null=True)
-    collection = models.ForeignKey(Collection)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
     musicbrainz_artistid = fields.UUIDField()
 
@@ -72,7 +72,7 @@ class Artist(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('artist_detail', args=[self.pk])
 
     def related_artists(self):
@@ -96,12 +96,12 @@ class Label(models.Model):
 
 class Album(models.Model):
     title = models.CharField(max_length=255, db_index=True)
-    artist = models.ForeignKey(Artist)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     date = models.CharField(max_length=15, null=True, db_index=True)
     genres = models.ManyToManyField(Genre)
-    country = models.ForeignKey(Country, null=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     path = models.CharField(max_length=255, db_index=True, null=True)
-    collection = models.ForeignKey(Collection)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
     labels = models.ManyToManyField(Label)
     albumtypes = models.ManyToManyField(AlbumType)
@@ -131,7 +131,7 @@ class Album(models.Model):
         return [ at.name for at in self.albumtypes.all() if at.name != 'album' ]
 
     def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('album_detail', args=[self.pk])
 
     def cover(self, return_if_not_exists=False):
@@ -151,7 +151,7 @@ class Album(models.Model):
             return c
 
     def get_cover_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('cover', args=[self.pk])
 
     def _mbid_cover_download(self, mbid, cover):
@@ -205,8 +205,8 @@ class Track(models.Model):
     discnumber = models.PositiveIntegerField(null=True)
     tracknumber = models.PositiveIntegerField(null=True)
     title = models.CharField(max_length=255)
-    album = models.ForeignKey(Album, null=True)
-    artist = models.ForeignKey(Artist, related_name='track_display_set')
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, null=True)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='track_display_set')
     artists = models.ManyToManyField(Artist)
     length = models.PositiveIntegerField(null=True)
     bitrate = models.PositiveIntegerField(null=True)
@@ -214,7 +214,7 @@ class Track(models.Model):
     filesize = models.PositiveIntegerField(null=True)
     mtime = models.DateTimeField(null=True)
     path = models.CharField(max_length=255, db_index=True)
-    collection = models.ForeignKey(Collection)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
     musicbrainz_trackid = fields.UUIDField()
 
@@ -250,25 +250,25 @@ class Track(models.Model):
         return mimetype
 
     def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('track_detail', args=[self.pk])
 
     def get_mp3_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('track', args=['mp3', self.pk])
 
     def get_ogg_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('track', args=['ogg', self.pk])
 
     def get_original_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse('track', args=['original', self.pk])
 
 
 # Playlist stuff
 class Playlist(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     @property
     def tracks(self):
@@ -315,9 +315,9 @@ class Playlist(models.Model):
 
 
 class BaseTrack(models.Model):
-    tags_track = models.ForeignKey(Track, null=True)
+    tags_track = models.ForeignKey(Track, on_delete=models.CASCADE, null=True)
     file_path = models.CharField(max_length=255, null=True)
-    collection = models.ForeignKey(Collection)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -348,7 +348,7 @@ class BaseTrack(models.Model):
 
 
 class PlaylistTrack(BaseTrack):
-    playlist = models.ForeignKey(Playlist)
+    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
     sort_order = models.IntegerField()
 
     class Meta:
@@ -362,7 +362,7 @@ class PlaylistTrack(BaseTrack):
 
 
 class LastPlayed(BaseTrack):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -379,6 +379,6 @@ class Player(models.Model):
         ('B', 'Browser'),
         ('E', 'External'),  # not yet implemented
         ('C', 'Client'))  # not yet implemented
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(max_length=1, choices=PLAYER_TYPES)
-    playlist = models.OneToOneField(Playlist)
+    playlist = models.OneToOneField(Playlist, on_delete=models.CASCADE)

@@ -4,8 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from music import views
 
-admin.autodiscover()
-
+app_name = 'music'
 urlpatterns = [
     url(r'^$', login_required(views.HomePageView.as_view()), name='home'),
     url(r'^playlist/$', views.TemplateView.as_view(template_name='music/playlist.html'), name='playlist'),
@@ -33,6 +32,6 @@ urlpatterns = [
 
     url(r'^genre/(?P<pk>\d+)/$', views.GenreDetailView.as_view(), name='genre_detail'),
 
-    url(r'^settings/', include('music.settings.urls', namespace='settings')),
-    url(r'^search/', views.SearchView.as_view(), name='search'),
+    url(r'^settings/', include('music.settings.urls', namespace='music_settings')),
+    url(r'^search/$', views.SearchView.as_view(), name='search'),
 ]

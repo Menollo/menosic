@@ -8,7 +8,7 @@ class MusicSettings(models.Model):
         ('sortname', 'By Artist (sortname)'),
         ('name', 'By Artist (full)'),
     )
-    user = models.OneToOneField(User, db_index=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, db_index=True)
     ordering = models.CharField(
         max_length=20,
         choices=ORDERING_CHOICES,

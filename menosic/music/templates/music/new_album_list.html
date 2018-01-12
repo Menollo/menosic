@@ -8,7 +8,7 @@
   <div class="new-album-item">
     <div class="thumbnail">
       <a href="{{ album.get_absolute_url }}">
-        <img src="{% url 'cover' album.pk %}">
+        <img src="{% url 'music:cover' album.pk %}">
       </a>
     </div>
     <div class="caption">
@@ -16,7 +16,7 @@
       {% for artist in album.artists.all %}
       <h4><a href="{{ artist.get_absolute_url }}">{{ artist.name }}</a></h4>
       {% endfor %}
-      <p><a class="to_playlist" href="{% url 'add_album' album.id %}"><i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-th-list"></i></a></p>
+      <p><a class="to_playlist" href="{% url 'music:add_album' album.id %}"><i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-th-list"></i></a></p>
     </div>
   </div>
   {% endfor %}
@@ -25,13 +25,13 @@
  <div class="pagination">
      <span class="page-links">
          {% if page_obj.has_previous %}
-             <a href="{% url "new_albums" %}?page={{ page_obj.previous_page_number }}"><i class="glyphicon glyphicon-backward"></i></a>
+             <a href="{% url "music:new_albums" %}?page={{ page_obj.previous_page_number }}"><i class="glyphicon glyphicon-backward"></i></a>
          {% endif %}
          <span class="page-current">
              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
          </span>
          {% if page_obj.has_next %}
-             <a href="{% url "new_albums" %}?page={{ page_obj.next_page_number }}"><i class="glyphicon glyphicon-forward"></i></a>
+             <a href="{% url "music:new_albums" %}?page={{ page_obj.next_page_number }}"><i class="glyphicon glyphicon-forward"></i></a>
          {% endif %}
      </span>
  </div>

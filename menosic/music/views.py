@@ -6,7 +6,7 @@ import string
 
 from PIL import Image
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse, StreamingHttpResponse, Http404
 from django.utils import timezone
@@ -357,15 +357,15 @@ class SearchView(JSONResponseMixin, TemplateView):
         data = {}
 
         artists = search.search_artists(q).values('name', 'id')
-        artist_url = reverse('artist_detail', args=(0,))
+        artist_url = reverse('music:artist_detail', args=(0,))
         data['artists'] = list(map(lambda x: {'name': x['name'], 'url': artist_url.replace('0', str(x['id']))}, artists))
 
         albums = search.search_albums(q).values('title', 'id', 'artist__name')
-        album_url = reverse('album_detail', args=(0,))
+        album_url = reverse('music:album_detail', args=(0,))
         data['albums'] = list(map(lambda x: {'title': x['title'], 'artist': x['artist__name'], 'url': album_url.replace('0', str(x['id']))}, albums))
 
         tracks = search.search_tracks(q).values('title', 'album__id', 'artist__name', 'artists__name')
-        album_url = reverse('album_detail', args=(0,))
+        album_url = reverse('music:album_detail', args=(0,))
         data['tracks'] = list(map(lambda x: {'title': x['title'], 'artist': x['artist__name'], 'url': album_url.replace('0', str(x['album__id']))}, tracks))
 
         return data

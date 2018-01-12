@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
+
 from django.conf import settings
 
 
@@ -17,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('ordering', models.CharField(default=(b'sortname', b'By Artist (sortname)'), max_length=20, choices=[(b'sortname', b'By Artist (sortname)'), (b'name', b'By Artist (full)')])),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, unique=True)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE, unique=True)),
             ],
             options={
             },

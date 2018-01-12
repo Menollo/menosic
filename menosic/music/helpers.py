@@ -24,11 +24,11 @@ def artists(request):
     from music.models import Artist, Collection
     artists = Artist.objects.exclude(album=None).filter(collection__disabled=False).values('id', 'name', 'sortname')
 
-    from django.core.urlresolvers import reverse
-    url = reverse('artist_detail', args=(0,))
+    from django.urls import reverse
+    url = reverse('music:artist_detail', args=(0,))
 
     def add_url_to_tag_artist(dict_item):
-        #dict_item['url'] = reverse('artist_detail', args=(dict_item['id'],))
+        #dict_item['url'] = reverse('music:artist_detail', args=(dict_item['id'],))
         dict_item['url'] = url.replace('0', str(dict_item['id']))
         return dict_item
 
@@ -59,7 +59,7 @@ def artists(request):
 
 
 def register_playback(track, user):
-    if user.is_authenticated():
+    if user.is_authenticated:
         from music.models import LastPlayed
         try:
             last = LastPlayed.objects.get(user=user)

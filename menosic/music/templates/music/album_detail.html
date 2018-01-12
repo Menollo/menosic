@@ -3,12 +3,12 @@
 <div class="album">
   {% if album.cover %}
   <div class="album-cover">
-    <img src="{% url 'cover' album.pk %}">
+    <img src="{% url 'music:cover' album.pk %}">
   </div>
   {% endif %}
   <h2>{{ album.title }}</h2>
 </div>
-<p><a class="to_playlist" href="{% url 'add_album' album.id %}"><i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-th-list"></i> add whole album to playlist</a></p>
+<p><a class="to_playlist" href="{% url 'music:add_album' album.id %}"><i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-th-list"></i> add whole album to playlist</a></p>
         </a></td>
 
 
@@ -29,9 +29,9 @@
     </tr>
     {% endifchanged %}
     <tr>
-        <td><a class="to_playlist add_to_playlist" href="{% url 'add_track' track.id %}"><i class="glyphicon glyphicon-plus"></i></a></td>
+        <td><a class="to_playlist add_to_playlist" href="{% url 'music:add_track' track.id %}"><i class="glyphicon glyphicon-plus"></i></a></td>
         <td>{{ track.tracknumber }}</td>
-        <td><a class="to_playlist" href="{% url 'play_album_track' track.id %}">{{ track.title }}</a>
+        <td><a class="to_playlist" href="{% url 'music:play_album_track' track.id %}">{{ track.title }}</a>
         <td>{{ track.duration }}</td>
     </tr>
 {% endfor %}

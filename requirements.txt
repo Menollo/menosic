@@ -1,4 +1,4 @@
 mutagenx
-django
+django>1.9
 pillow
 tornado

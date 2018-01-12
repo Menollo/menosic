@@ -18,10 +18,10 @@ class DirItem(object):
         return self.name
 
     def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
-        path = urlsafe_base64_encode(self.path.encode('utf-8', 'ignore'))
+        from django.urls import reverse
+        path = urlsafe_base64_encode(self.path.encode('utf-8', 'ignore')).decode('utf-8')
         return reverse(
-            'browse',
+            'music:browse',
             kwargs={'collection': self.collection.id, 'path': path})
 
 
@@ -61,18 +61,18 @@ class FileItem(object):
         return attribute
 
     def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
+        from django.urls import reverse
         return reverse(
-            'play_album_files',
+            'music:play_album_files',
             kwargs={'collection': self.collection.id, 'path': self.encoded_path})
 
     def get_mp3_url(self):
-        from django.core.urlresolvers import reverse
-        return reverse('file', kwargs={'output': 'mp3', 'collection': self.collection.id, 'path': self.encoded_path})
+        from django.urls import reverse
+        return reverse('music:file', kwargs={'output': 'mp3', 'collection': self.collection.id, 'path': self.encoded_path})
 
     def get_ogg_url(self):
-        from django.core.urlresolvers import reverse
-        return reverse('file', kwargs={'output': 'ogg', 'collection': self.collection.id, 'path': self.encoded_path})
+        from django.urls import reverse
+        return reverse('music:file', kwargs={'output': 'ogg', 'collection': self.collection.id, 'path': self.encoded_path})
 
 
 def items_for_path(collection, path):
@@ -93,9 +93,9 @@ def items_for_path(collection, path):
         sorted(files, key=lambda i: i.sort))
 
 def artists_tuple(collection):
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     url = reverse(
-        'browse',
+        'music:browse',
         kwargs={'collection': collection.id, 'path': 'PATH'})
 
     if os.path.lexists(collection.location):
