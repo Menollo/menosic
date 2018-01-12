@@ -73,7 +73,7 @@ class Artist(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('artist_detail', args=[self.pk])
+        return reverse('music:artist_detail', args=[self.pk])
 
     def related_artists(self):
         return Artist.objects.filter(track__artists=self).exclude(id=self.id).distinct()
@@ -132,7 +132,7 @@ class Album(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('album_detail', args=[self.pk])
+        return reverse('music:album_detail', args=[self.pk])
 
     def cover(self, return_if_not_exists=False):
         if self.path:
@@ -152,7 +152,7 @@ class Album(models.Model):
 
     def get_cover_url(self):
         from django.urls import reverse
-        return reverse('cover', args=[self.pk])
+        return reverse('music:cover', args=[self.pk])
 
     def _mbid_cover_download(self, mbid, cover):
         try:
@@ -251,19 +251,19 @@ class Track(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('track_detail', args=[self.pk])
+        return reverse('music:track_detail', args=[self.pk])
 
     def get_mp3_url(self):
         from django.urls import reverse
-        return reverse('track', args=['mp3', self.pk])
+        return reverse('music:track', args=['mp3', self.pk])
 
     def get_ogg_url(self):
         from django.urls import reverse
-        return reverse('track', args=['ogg', self.pk])
+        return reverse('music:track', args=['ogg', self.pk])
 
     def get_original_url(self):
         from django.urls import reverse
-        return reverse('track', args=['original', self.pk])
+        return reverse('music:track', args=['original', self.pk])
 
 
 # Playlist stuff
