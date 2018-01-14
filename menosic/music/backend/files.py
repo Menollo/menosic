@@ -74,6 +74,10 @@ class FileItem(object):
         from django.urls import reverse
         return reverse('music:file', kwargs={'output': 'ogg', 'collection': self.collection.id, 'path': self.encoded_path})
 
+    def get_original_url(self):
+        from django.urls import reverse
+        return reverse('music:file', kwargs={'output': 'original', 'collection': self.collection.id, 'path': self.encoded_path})
+
 
 def items_for_path(collection, path):
     dirs = []
