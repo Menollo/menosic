@@ -1,5 +1,5 @@
 import os
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlquote
 from music.backend.tags import reader
 
 
@@ -37,6 +37,17 @@ class FileItem(object):
     @property
     def full_path(self):
         return os.path.join(self.collection.location, self.path)
+
+    @property
+    def relative_path(self):
+        if not self.full_path.startswith(self.collection.location):
+            raise Exception('Something is wrong.. The file path is outside the collection path.')
+        return self.full_path[len(self.collection.location):]
+
+    @property
+    def sendfile_location(self):
+        return urlquote("%s%s" % (self.collection.sendfile_location, self.relative_path))
+
 
     @property
     def title(self):
