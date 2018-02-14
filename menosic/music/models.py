@@ -58,7 +58,7 @@ class Artist(models.Model):
     sortname = models.CharField(max_length=255, db_index=True)
     genres = models.ManyToManyField(Genre)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
-    path = models.CharField(max_length=255, db_index=True, null=True)
+    path = models.CharField(max_length=1024, db_index=True, null=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
     musicbrainz_artistid = fields.UUIDField()
@@ -102,7 +102,7 @@ class Album(models.Model):
     date = models.CharField(max_length=15, null=True, db_index=True)
     genres = models.ManyToManyField(Genre)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
-    path = models.CharField(max_length=255, db_index=True, null=True)
+    path = models.CharField(max_length=1024, db_index=True, null=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
     labels = models.ManyToManyField(Label)
@@ -215,7 +215,7 @@ class Track(models.Model):
     filetype = models.CharField(max_length=15, null=True)
     filesize = models.PositiveIntegerField(null=True)
     mtime = models.DateTimeField(null=True)
-    path = models.CharField(max_length=255, db_index=True)
+    path = models.CharField(max_length=1024, db_index=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
     musicbrainz_trackid = fields.UUIDField()
@@ -318,7 +318,7 @@ class Playlist(models.Model):
 
 class BaseTrack(models.Model):
     tags_track = models.ForeignKey(Track, on_delete=models.CASCADE, null=True)
-    file_path = models.CharField(max_length=255, null=True)
+    file_path = models.CharField(max_length=1024, null=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
     class Meta:
