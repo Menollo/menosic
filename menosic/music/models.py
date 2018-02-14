@@ -235,7 +235,7 @@ class Track(models.Model):
     @property
     def relative_path(self):
         if not self.full_path.startswith(self.collection.location):
-            raise Exception('Spul is stuk')
+            raise Exception('Something is wrong.. The file path is outside the collection path.')
         return self.full_path[len(self.collection.location):]
 
     @property

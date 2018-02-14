@@ -1,5 +1,5 @@
 import os
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlquote
 from music.backend.tags import reader
 
 
@@ -39,6 +39,17 @@ class FileItem(object):
         return os.path.join(self.collection.location, self.path)
 
     @property
+    def relative_path(self):
+        if not self.full_path.startswith(self.collection.location):
+            raise Exception('Something is wrong.. The file path is outside the collection path.')
+        return self.full_path[len(self.collection.location):]
+
+    @property
+    def sendfile_location(self):
+        return urlquote("%s%s" % (self.collection.sendfile_location, self.relative_path))
+
+
+    @property
     def title(self):
         return str(self.tag.title)
 
@@ -73,6 +84,10 @@ class FileItem(object):
     def get_ogg_url(self):
         from django.urls import reverse
         return reverse('music:file', kwargs={'output': 'ogg', 'collection': self.collection.id, 'path': self.encoded_path})
+
+    def get_original_url(self):
+        from django.urls import reverse
+        return reverse('music:file', kwargs={'output': 'original', 'collection': self.collection.id, 'path': self.encoded_path})
 
 
 def items_for_path(collection, path):
