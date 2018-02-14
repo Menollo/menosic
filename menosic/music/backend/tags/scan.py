@@ -9,7 +9,7 @@ from music.backend.tags.reader import File
 class Scan(object):
     unknown = lambda self, x: x or settings.UNKNOWN_TEXT
 
-    def __init__(self, collection):
+    def __init__(self, collection, path=None):
         self.collection = collection
 
         # Do a query to initiate a database connection, and ignore unknown characters in id3 tags
@@ -18,7 +18,12 @@ class Scan(object):
             from django.db import connection
             connection.connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
-        for root, dirs, files in os.walk(collection.location):
+        location = collection.location
+        if path:
+            path = path[1:] if path[0] == os.sep else path
+            location = os.path.join(location, path)
+
+        for root, dirs, files in os.walk(location):
             self.handle_folder(root, files)
 
     def artist(self, t, artist):

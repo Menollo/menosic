@@ -3,6 +3,9 @@ from music import models
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('path', nargs='?', type=str)
+
     def handle(self, *args, **options):
         for collection in models.Collection.objects.filter(disabled=False):
-            collection.scan()
+            collection.scan(options['path'])

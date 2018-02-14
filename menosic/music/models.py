@@ -27,12 +27,14 @@ class Collection(models.Model):
     sendfile_location = models.CharField(max_length=255, null=True, blank=True)
     disabled = models.BooleanField(default=False)
 
-    def scan(self):
+    def scan(self, path=None):
+        if path and path.startswith(self.location):
+            path = path[len(self.location):]
         try:
             backend_module = self.get_backend_display().lower()
             module = 'music.backend.%s.scan' % backend_module
             backend = importlib.import_module(module)
-            return backend.Scan(self)
+            return backend.Scan(self, path=path)
         except ImportError:
             print("Don't know how to scan :(")
 
