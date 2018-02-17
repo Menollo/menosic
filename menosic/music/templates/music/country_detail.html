@@ -1,0 +1,9 @@
+<h2>{{ country.name }}</h2>
+
+<ul id="artist_list">
+{% for artist in country.artists %}
+<li><a href="{{ artist.get_absolute_url }}">{{ artist.name }}</a></li>
+{% empty %}
+  <li>No artist for {{ country.name }}.</li>
+{% endfor %}
+</ul>

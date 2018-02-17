@@ -18,6 +18,7 @@ from django.views.generic.detail import SingleObjectMixin, BaseDetailView
 from music import helpers, models, search
 from music.backend import files as files_backend
 
+
 class HomePageView(TemplateView):
     template_name = 'base.html'
 
@@ -26,9 +27,11 @@ class HomePageView(TemplateView):
             'artists': helpers.artists(self.request),
             'letters': string.ascii_uppercase,
             'new_albums': models.Album.objects.order_by('-pk')[:12],
-            'genres': models.Genre.objects.order_by('name')
+            'genres': models.Genre.objects.order_by('name'),
+            'countries': models.Country.objects.order_by('name')
             }
         return data
+
 
 # browse views
 class ArtistDetailView(DetailView):
@@ -45,6 +48,10 @@ class TrackDetailView(DetailView):
 
 class GenreDetailView(DetailView):
     model = models.Genre
+
+
+class CountryDetailView(DetailView):
+    model = models.Country
 
 
 class BrowseView(TemplateView):

@@ -97,6 +97,14 @@
                             {% endfor %}
                         </ul>
                     </div> <!-- genres -->
+                    <div role="tabpanel" class="tab-pane" id="countries">
+                        <h2>Countries</h2>
+                        <ul>
+                            {% for country in countries %}
+                            <li><a href="{{ country.get_absolute_url }}">{{ country.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div> <!-- countries -->
                 </div><!-- left-content -->
 
             </div> <!-- left -->
