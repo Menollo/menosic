@@ -62,8 +62,12 @@ class Player(object):
         bus.add_signal_watch()
         bus.connect('message', self.on_message)
 
-        self.update_playlist()
-        self.playlist.next()
+        try:
+            self.update_playlist()
+        except:
+            print('error retrieving playlist...')
+        else:
+            self.playlist.next()
 
         GObject.threads_init()
         self.loop = GObject.MainLoop()

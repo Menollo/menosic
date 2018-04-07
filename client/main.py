@@ -28,7 +28,10 @@ class WebsocketPlayerControl(object):
         self.ws.send(json.dumps(data))
 
     def start(self):
-        self.ws.run_forever(ping_interval=60, sslopt={"cert_reqs": ssl.CERT_NONE})
+        while True:
+            print('opening websocket connection...')
+            self.ws.run_forever(ping_interval=60, sslopt={"cert_reqs": ssl.CERT_NONE})
+            time.sleep(10)
 
     def quit(self):
         self.ws.send("client disconnect")
