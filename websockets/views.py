@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db import connection
 import tornado.websocket
 import json
 
@@ -13,7 +14,8 @@ class Client(object):
     @property
     def user(self):
         if not self._user:
-            self._user = User.objects.get(id=self.key)
+            self._user = User.objects.get(id=self.key).username
+            connection.close()
         return self._user
 
     @property
@@ -70,7 +72,7 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
 
         response = {
                 'action': 'players',
-                'players': [{'player': c.player, 'name': c.name, 'user': c.user.username} for c in clients]
+                'players': [{'player': c.player, 'name': c.name, 'user': c.user} for c in clients]
             }
         obj.write_message(json.dumps(response))
 
