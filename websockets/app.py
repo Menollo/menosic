@@ -3,12 +3,13 @@ import django
 
 import sys
 import os
+
 sys.path.append(os.path.abspath('../menosic/'))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'menosic.settings'
-
 django.setup()
 
 import views
+
 
 app = tornado.web.Application([
     (r'/', views.TestWebSocket),

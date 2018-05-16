@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 import tornado.websocket
 import json
 
+
 class Client(object):
     name = 'Unknown'
     key = None
@@ -17,7 +18,7 @@ class Client(object):
 
     @property
     def allowed_users(self):
-        return [ self.user, ]
+        return [self.user, ]
 
 
 class TestWebSocket(tornado.websocket.WebSocketHandler):
@@ -39,7 +40,7 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         try:
-            data = json.loads(message)  
+            data = json.loads(message)
 
             if hasattr(self, data.get('action')):
                 print('message received: ', data)
@@ -48,7 +49,6 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
                 print('unknown action:', data.get('action'))
         except json.decoder.JSONDecodeError:
             print('no json received')
-
 
     def register(self, data):
         self.clients[self].key = data['key']
@@ -61,7 +61,6 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
             if user in client.allowed_users:
                 self.update_client_players(obj)
 
-
     def update_client_players(self, obj):
         user = self.clients[obj].user
         clients = []
@@ -69,9 +68,11 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
             if user in client.allowed_users:
                 clients.append(client)
 
-        response = {'action': 'players', 'players': [{'player': client.player, 'name': client.name, 'user': client.user.username} for client in clients ]}
+        response = {
+                'action': 'players',
+                'players': [{'player': c.player, 'name': c.name, 'user': c.user.username} for c in clients]
+            }
         obj.write_message(json.dumps(response))
-
 
     def players(self, data):
         self.update_client_players(self)
@@ -107,7 +108,6 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
                         'identifier': data['identifier'],
                     }
                 obj.write_message(json.dumps(response))
-
 
     def _player_action(self, data):
         for obj, client in self.clients.items():
