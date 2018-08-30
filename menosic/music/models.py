@@ -279,7 +279,7 @@ class Playlist(models.Model):
 
     @property
     def tracks(self):
-        return self.playlisttrack_set.all()
+        return self.playlisttrack_set.prefetch_related('tags_track__artist', 'tags_track__album').all()
 
     def empty(self):
         self.playlisttrack_set.all().delete()
