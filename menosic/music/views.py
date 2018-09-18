@@ -118,11 +118,10 @@ class PlayAlbumFiles(PlayerMixin, TemplateView):
 class AddDirectoryToPlaylist(PlayerMixin, TemplateView):
 
     def tracks_for_path(self, collection, path, tracks=[]):
-        print('adding files for {}'.format(path))
         dirs, files = files_backend.items_for_path(collection, path)
         tracks += files
         for d in dirs:
-            tracks += self.tracks_for_path(collection, d.path, tracks)
+            self.tracks_for_path(collection, d.path, tracks)
         return tracks
 
     def update_playlist(self, playlist):
