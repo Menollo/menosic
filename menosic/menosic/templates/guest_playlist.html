@@ -17,7 +17,26 @@
             <div id="middle-right">
                 <div id="content-meta">
                     <div id="playlist">
-                        {% include 'music/playlist.html' %}
+                        <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Artist</th>
+                                <th>Album</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for pt in playlist.tracks %}
+                            <tr id="{{ pt.identifier }}" {% if pt.identifier == current %}class="playing"{% endif %}>
+                                <td><a class="to_player" mp3="{{ pt.track.get_mp3_url }}" ogg="{{ pt.track.get_ogg_url }}">{{ pt.track.title }}</a></td>
+                                <td>{{ pt.track.artist }}</td>
+                                <td>{{ pt.track.album.title }}</td>
+                                <td>{{ pt.track.duration }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        </table>
                     </div>
                 </div>
                 <div id="player-container">
