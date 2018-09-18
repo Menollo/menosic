@@ -7,6 +7,7 @@ from music import views
 app_name = 'music'
 urlpatterns = [
     url(r'^$', login_required(views.HomePageView.as_view()), name='home'),
+    url(r'^guest/(?P<pk>\d+)/$', views.GuestPlaylistView.as_view(), name='guest_playlist'),
     url(r'^playlist/$', views.TemplateView.as_view(template_name='music/playlist.html'), name='playlist'),
     url(r'^artist/(?P<pk>\d+)/$', views.ArtistDetailView.as_view(), name='artist_detail'),
     url(r'^browse/(?P<collection>\d+)/(?P<path>\w+)/$', views.BrowseView.as_view(), name='browse'),

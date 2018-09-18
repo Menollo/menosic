@@ -411,3 +411,8 @@ class SearchView(JSONResponseMixin, TemplateView):
         data['tracks'] = list(map(lambda x: {'title': x['title'], 'artist': x['artist__name'], 'url': album_url.replace('0', str(x['album__id']))}, tracks))
 
         return data
+
+
+class GuestPlaylistView(DetailView):
+    template_name = 'guest_playlist.html'
+    model = models.Playlist

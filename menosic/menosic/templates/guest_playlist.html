@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block all %}
+
+    <div id="container">
+        <div id="header">
+            <div>
+                <h1><i class="glyphicon glyphicon-music"></i> Menosic</h1>
+            </div>
+            <div>
+                <a class="to_content" href="{% url "music:settings:detail" %}"><i class="glyphicon glyphicon-wrench"></i></a>
+                <label for="searchbox" class="glyphicon glyphicon-search"></label>
+                <input id="searchbox" name="search" type="text" />
+            </div>
+        </div>
+        <div id="big-part">
+            <div id="middle-right">
+                <div id="content-meta">
+                    <div id="playlist">
+                        {% include 'music/playlist.html' %}
+                    </div>
+                </div>
+                <div id="player-container">
+                    <audio controls id="player">
+                        <source id="mp3" type="audio/mpeg" />
+                        <source id="ogg" type="audio/ogg" />
+                        Your browser does not support the audio tag!
+                    </audio>
+                    <div id="client-control">
+                        <i id="client_pause" class="glyphicon glyphicon-pause"></i>
+                        <i id="client_next" class="glyphicon glyphicon-fast-forward"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock all %}
