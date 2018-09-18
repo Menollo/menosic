@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 
+{% block head %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{ block.super }}
+{% endblock head %}
+
 {% block all %}
 
     <div id="container">
         <div id="header">
             <div>
                 <h1><i class="glyphicon glyphicon-music"></i> Menosic</h1>
-            </div>
-            <div>
-                <a class="to_content" href="{% url "music:settings:detail" %}"><i class="glyphicon glyphicon-wrench"></i></a>
-                <label for="searchbox" class="glyphicon glyphicon-search"></label>
-                <input id="searchbox" name="search" type="text" />
             </div>
         </div>
         <div id="big-part">
