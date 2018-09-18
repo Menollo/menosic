@@ -62,6 +62,7 @@ class BrowseView(TemplateView):
 
         collection = models.Collection.objects.get(pk=collection)
         dirs, files = files_backend.items_for_path(collection, path)
+        current = files_backend.DirItem(collection, path)
 
         crumbs = []
         for p in path.split('/'):
@@ -71,7 +72,7 @@ class BrowseView(TemplateView):
             crumbs.append(files_backend.DirItem(collection, p))
 
         return {
-            'title': os.path.basename(path),
+            'current': current,
             'dirs': dirs,
             'files': files,
             'crumbs': crumbs}
@@ -112,6 +113,41 @@ class PlayAlbumFiles(PlayerMixin, TemplateView):
 
     def get_current(self, playlist):
         return self.kwargs['path']
+
+
+class AddDirectoryToPlaylist(PlayerMixin, TemplateView):
+
+    def tracks_for_path(self, collection, path, tracks=[]):
+        print('adding files for {}'.format(path))
+        dirs, files = files_backend.items_for_path(collection, path)
+        tracks += files
+        for d in dirs:
+            tracks += self.tracks_for_path(collection, d.path, tracks)
+        return tracks
+
+    def update_playlist(self, playlist):
+        collection = models.Collection.objects.get(pk=self.kwargs['collection'])
+        path = urlsafe_base64_decode(self.kwargs['path']).decode('utf-8')
+
+        tracks = self.tracks_for_path(collection, path)
+
+        playlist.add_file_tracks(tracks)
+        playlist.save()
+
+        return playlist
+
+
+class AddFileToPlaylist(PlayerMixin, TemplateView):
+
+    def update_playlist(self, playlist):
+        collection = models.Collection.objects.get(pk=self.kwargs['collection'])
+        path = urlsafe_base64_decode(self.kwargs['path']).decode('utf-8')
+
+        track = files_backend.FileItem(collection, path)
+
+        playlist.add_file_tracks(track)
+        playlist.save()
+        return playlist
 
 
 class PlayAlbumTrack(PlayerMixin, DetailView):

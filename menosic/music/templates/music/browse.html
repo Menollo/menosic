@@ -6,15 +6,36 @@
     {% endif %}
 {% endfor %}
 
-<h1>{{ title }}</h1>
+<div class="album">
+  <h2>{{ current.name }}</h2>
+</div>
+<p><a class="to_playlist" href="{% url 'music:add_album_files' current.collection.id current.encoded_path %}"><i class="glyphicon glyphicon-plus"></i><i class="glyphicon glyphicon-th-list"></i> add whole album to playlist</a></p>
+
 <ul>
 {% for item in dirs %}
     <li><a href="{{ item.get_absolute_url }}">{{ item.name }}</a></li>
 {% endfor %}
 </ul>
 
-<ul>
+{% if files %}
+<table class="table table-hover">
+<thead>
+    <tr>
+        <th>Add</th>
+        <th>#</th>
+        <th>Title</th>
+        <th>Duration</th>
+    </tr>
+</thead>
+<tbody>
 {% for track in files %}
-    <li><a class="to_playlist" href="{{ track.get_absolute_url }}">{{ track.tag.tracknumber }} - {{ track.tag.title }} ({{ track.tag.duration }})</a></li>
+    <tr>
+        <td><a class="to_playlist add_to_playlist" href="{% url 'music:add_file' track.collection.id track.encoded_path %}"><i class="glyphicon glyphicon-plus"></i></a></td>
+        <td>{{ track.tag.tracknumber }}</td>
+        <td><a class="to_playlist" href="{{ track.get_absolute_url }}">{{ track.tag.title }}</a>
+        <td>{{ track.tag.duration }}</td>
+    </tr>
 {% endfor %}
-</ul>
+</tbody>
+</table>
+{% endif %}

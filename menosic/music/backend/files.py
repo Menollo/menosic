@@ -19,10 +19,13 @@ class DirItem(object):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        path = urlsafe_base64_encode(self.path.encode('utf-8', 'ignore')).decode('utf-8')
         return reverse(
             'music:browse',
-            kwargs={'collection': self.collection.id, 'path': path})
+            kwargs={'collection': self.collection.id, 'path': self.encoded_path})
+
+    @property
+    def encoded_path(self):
+        return urlsafe_base64_encode(self.path.encode('utf-8', 'ignore')).decode('utf-8')
 
 
 class FileItem(object):

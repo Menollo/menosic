@@ -14,10 +14,18 @@ urlpatterns = [
     url(r'^track/(?P<pk>\d+)/$', views.TrackDetailView.as_view(), name='track_detail'),
     url(r'^last_played/$', views.LastPlayedView.as_view(), name='last_played'),
 
+    # playlist
+
+    # tags
     url(r'^play_album_track/(?P<pk>\d+)/$', views.PlayAlbumTrack.as_view(), name='play_album_track'),
-    url(r'^play_album_files/(?P<collection>\d+)/(?P<path>\w+)/$', views.PlayAlbumFiles.as_view(), name='play_album_files'),
     url(r'^add_album/(?P<pk>\d+)/$', views.AddAlbumToPlaylist.as_view(), name='add_album'),
     url(r'^add_track/(?P<pk>\d+)/$', views.AddTrackToPlaylist.as_view(), name='add_track'),
+
+    # files
+    url(r'^play_album_files/(?P<collection>\d+)/(?P<path>\w+)/$', views.PlayAlbumFiles.as_view(), name='play_album_files'),
+    url(r'^add_album_files/(?P<collection>\d+)/(?P<path>\w+)/$', views.AddDirectoryToPlaylist.as_view(), name='add_album_files'),
+    url(r'^add_file/(?P<collection>\d+)/(?P<path>\w+)/$', views.AddFileToPlaylist.as_view(), name='add_file'),
+
     url(r'^edit_playlist_track/(?P<pk>\d+)/(?P<action>\w+)/$', views.PlaylistTrack.as_view(), name='edit_playlist_track'),
     url(r'^client/(?P<pk>\d+)/$', views.PlayerJSON.as_view(), name='client'),
 
