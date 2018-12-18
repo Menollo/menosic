@@ -37,16 +37,16 @@ class WebsocketPlayerControl(object):
         self.ws.send("client disconnect")
         self.ws.close()
 
-    def on_open(self, ws):
+    def on_open(self):
         try:
             name = settings.CLIENT_NAME
         except:
             name = 'client'
 
         data = {'action':'register', 'player': self.player_id, 'key': settings.CLIENT_TOKEN, 'playlist': settings.PLAYLIST_ID, 'name': name}
-        ws.send(json.dumps(data))
+        self.ws.send(json.dumps(data))
 
-    def on_message(self, ws, message):
+    def on_message(self, message):
         print('message received:', message)
         data = json.loads(message)
 
@@ -61,7 +61,7 @@ class WebsocketPlayerControl(object):
         elif data['action'] == 'play_song':
             self.player.play_song(data['identifier'])
 
-    def on_error(self, ws, error):
+    def on_error(self, error):
         print(error)
 
 
