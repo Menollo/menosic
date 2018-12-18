@@ -1,5 +1,3 @@
-from django.contrib.auth.models import User
-from django.db import connection
 import tornado.websocket
 import json
 
@@ -14,8 +12,7 @@ class Client(object):
     @property
     def user(self):
         if not self._user:
-            self._user = User.objects.get(id=self.key).username
-            connection.close()
+            self._user = self.key
         return self._user
 
     @property
