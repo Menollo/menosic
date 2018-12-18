@@ -14,6 +14,7 @@ from player import Player
 class WebsocketPlayerControl(object):
 
     def __init__(self, player, server=settings.WS_SERVER):
+        websocket.enableTrace(settings.DEBUG)
         self.player_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
         self.player = player
         self.ws = websocket.WebSocketApp(server,
@@ -29,7 +30,8 @@ class WebsocketPlayerControl(object):
 
     def start(self):
         while True:
-            print('opening websocket connection...')
+            if settings.DEBUG:
+                print('opening websocket connection...')
             self.ws.run_forever(ping_interval=60, sslopt={"cert_reqs": ssl.CERT_NONE})
             time.sleep(10)
 
@@ -47,7 +49,8 @@ class WebsocketPlayerControl(object):
         self.ws.send(json.dumps(data))
 
     def on_message(self, message):
-        print('message received:', message)
+        if settings.DEBUG:
+            print('message received:', message)
         data = json.loads(message)
 
         if data['action'] == 'play':
