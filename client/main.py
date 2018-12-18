@@ -1,38 +1,45 @@
-import traceback
-import threading
-import websocket
-import time
-import sys
 import json
-import string
 import random
 import ssl
+import string
+import threading
+import time
+import websocket
 
 import settings
 from player import Player
+
 
 class WebsocketPlayerControl(object):
 
     def __init__(self, player, server=settings.WS_SERVER):
         websocket.enableTrace(settings.DEBUG)
-        self.player_id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        rand_chars = string.ascii_uppercase + string.digits
+        self.player_id = ''.join(random.choice(rand_chars) for _ in range(10))
         self.player = player
         self.ws = websocket.WebSocketApp(server,
-                              on_message = self.on_message,
-                              on_error = self.on_error)
-        
+                                         on_message=self.on_message,
+                                         on_error=self.on_error)
+
         player.song_change_callback = self.song_change
         self.ws.on_open = self.on_open
 
     def song_change(self, identifier):
-        data = {'action':'song_change', 'player': self.player_id, 'key': settings.CLIENT_TOKEN,  'playlist': settings.PLAYLIST_ID, 'identifier': identifier}
+        data = {
+            'action': 'song_change',
+            'player': self.player_id,
+            'key': settings.CLIENT_TOKEN,
+            'playlist': settings.PLAYLIST_ID,
+            'identifier': identifier
+            }
         self.ws.send(json.dumps(data))
 
     def start(self):
         while True:
             if settings.DEBUG:
                 print('opening websocket connection...')
-            self.ws.run_forever(ping_interval=60, sslopt={"cert_reqs": ssl.CERT_NONE})
+            sslopt = {"cert_reqs": ssl.CERT_NONE}
+            self.ws.run_forever(ping_interval=60, sslopt=sslopt)
             time.sleep(10)
 
     def quit(self):
@@ -42,10 +49,16 @@ class WebsocketPlayerControl(object):
     def on_open(self):
         try:
             name = settings.CLIENT_NAME
-        except:
-            name = 'client'
+        except AttributeError:
+            name = 'Client'
 
-        data = {'action':'register', 'player': self.player_id, 'key': settings.CLIENT_TOKEN, 'playlist': settings.PLAYLIST_ID, 'name': name}
+        data = {
+            'action': 'register',
+            'player': self.player_id,
+            'key': settings.CLIENT_TOKEN,
+            'playlist': settings.PLAYLIST_ID,
+            'name': name
+            }
         self.ws.send(json.dumps(data))
 
     def on_message(self, message):
@@ -68,11 +81,10 @@ class WebsocketPlayerControl(object):
         print(error)
 
 
-if __name__ == "__main__":
-
+def main():
     player = Player()
     ws = WebsocketPlayerControl(player)
-    
+
     ws_thread = threading.Thread(name='ws', target=ws.start)
 
     try:
@@ -82,3 +94,7 @@ if __name__ == "__main__":
         player.quit()
         ws.quit()
         ws_thread.join()
+
+
+if __name__ == "__main__":
+    main()
