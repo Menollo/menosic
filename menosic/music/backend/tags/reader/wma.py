@@ -19,7 +19,7 @@ class Track(reader.Track):
         self.length = int(f.info.length)
         self.bitrate = int(f.info.bitrate)
 
-        self.musicbrainz_trackid = l(f.get('MusicBrainz/Track Id'))
+        self.musicbrainz_trackid = str(l(f.get('MusicBrainz/Track Id')))
         self.genres = f.get('WM/Genre')
 
         artist = reader.Artist()
@@ -37,8 +37,8 @@ class Track(reader.Track):
         album.title = l(f.get('WM/AlbumTitle'))
         album.date = l(f.get('WM/OriginalReleaseYear') or f.get('WM/Year'))
         album.country = l(f.get('MusicBrainz/Album Release Country'))
-        album.musicbrainz_albumid = l(f.get('MusicBrainz/Album Id'))
-        album.musicbrainz_releasegroupid = l(f.get('MusicBrainz/Release Group Id'))
+        album.musicbrainz_albumid = str(l(f.get('MusicBrainz/Album Id')))
+        album.musicbrainz_releasegroupid = str(l(f.get('MusicBrainz/Release Group Id')))
         album.labels = f.get('WM/Publisher')
         album.albumtypes = f.get('MusicBrainz/Album Type')
         album.albumstatus = f.get('MusicBrainz/Album Status')

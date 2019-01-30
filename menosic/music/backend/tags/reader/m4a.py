@@ -1,4 +1,4 @@
-from mutagenx.mp4 import MP4
+from mutagenx import mp4
 from music.backend.tags import reader
 
 
@@ -6,6 +6,8 @@ def l(i):
     item = reader.list_to_item(i)
     if type(item) == tuple:
         item = item[0]
+    if type(item) in (bytes, mp4.MP4FreeForm):
+        item = item.decode('utf-8')
     return item
 
 
@@ -14,7 +16,7 @@ class Track(reader.Track):
 
     def __init__(self, path):
         super(Track, self).__init__(path)
-        self.m4a = MP4(path)
+        self.m4a = mp4.MP4(path)
         f = self.m4a
 
         self.title = l(f.get(b'\xa9nam'))

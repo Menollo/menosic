@@ -65,7 +65,7 @@ class Artist(object):
 
 list_to_item = lambda l: None if not l else l[0]
 item_to_list = lambda i: [] if not i else str(i).split('\x00')
-data = lambda d: None if not d else d.data
+data = lambda d: None if not d else d.data.decode('utf-8')
 
 
 def number(string):

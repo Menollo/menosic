@@ -12,7 +12,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.http import urlquote
-from music import fields, helpers
+from music import helpers
 from music.backend import files as files_backend
 
 class Collection(models.Model):
@@ -66,7 +66,7 @@ class Artist(models.Model):
     path = models.CharField(max_length=255, db_index=True, null=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
-    musicbrainz_artistid = fields.UUIDField()
+    musicbrainz_artistid = models.UUIDField(null=True)
 
     class Meta:
         ordering = ['sortname']
@@ -114,8 +114,8 @@ class Album(models.Model):
     albumtypes = models.ManyToManyField(AlbumType)
     albumstatus = models.ManyToManyField(AlbumStatus)
 
-    musicbrainz_albumid = fields.UUIDField()
-    musicbrainz_releasegroupid = fields.UUIDField()
+    musicbrainz_albumid = models.UUIDField(null=True)
+    musicbrainz_releasegroupid = models.UUIDField(null=True)
 
     class Meta:
         ordering = ['date']
@@ -223,7 +223,7 @@ class Track(models.Model):
     path = models.CharField(max_length=255, db_index=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
-    musicbrainz_trackid = fields.UUIDField()
+    musicbrainz_trackid = models.UUIDField(null=True)
 
     class Meta:
         ordering = ['discnumber', 'tracknumber']
