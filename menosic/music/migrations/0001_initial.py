@@ -5,7 +5,6 @@ from django.db import models, migrations
 import django.db.models.deletion
 
 from django.conf import settings
-import music.fields
 
 
 class Migration(migrations.Migration):
@@ -22,8 +21,8 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=255, db_index=True)),
                 ('date', models.CharField(max_length=15, null=True, db_index=True)),
                 ('path', models.CharField(max_length=255, null=True, db_index=True)),
-                ('musicbrainz_albumid', music.fields.UUIDField(max_length=32, blank=True, null=True)),
-                ('musicbrainz_releasegroupid', music.fields.UUIDField(max_length=32, blank=True, null=True)),
+                ('musicbrainz_albumid', models.CharField(max_length=32, blank=True, null=True)),
+                ('musicbrainz_releasegroupid', models.CharField(max_length=32, blank=True, null=True)),
             ],
             options={
                 'ordering': ['date'],
@@ -57,7 +56,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255, db_index=True)),
                 ('sortname', models.CharField(max_length=255, db_index=True)),
                 ('path', models.CharField(max_length=255, null=True, db_index=True)),
-                ('musicbrainz_artistid', music.fields.UUIDField(max_length=32, blank=True, null=True)),
+                ('musicbrainz_artistid', models.CharField(max_length=32, blank=True, null=True)),
             ],
             options={
                 'ordering': ['sortname'],
@@ -168,7 +167,7 @@ class Migration(migrations.Migration):
                 ('filesize', models.PositiveIntegerField(null=True)),
                 ('mtime', models.DateTimeField(null=True)),
                 ('path', models.CharField(max_length=255, db_index=True)),
-                ('musicbrainz_trackid', music.fields.UUIDField(max_length=32, blank=True, null=True)),
+                ('musicbrainz_trackid', models.CharField(max_length=32, blank=True, null=True)),
                 ('album', models.ForeignKey(null=True, to='music.Album', on_delete=django.db.models.deletion.CASCADE)),
                 ('artists', models.ManyToManyField(null=True, to='music.Artist')),
                 ('collection', models.ForeignKey(to='music.Collection', on_delete=django.db.models.deletion.CASCADE)),
