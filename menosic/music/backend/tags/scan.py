@@ -26,35 +26,51 @@ class Scan(object):
         for root, dirs, files in os.walk(location):
             self.handle_folder(root, files)
 
+    def get_artist_by_artistid(self, artistid, name):
+        return models.Artist.objects.get(
+            musicbrainz_artistid=artistid,
+            name=name,
+            collection=self.collection)
+
+    def get_artist_by_name(self, name):
+        return models.Artist.objects.get(
+            musicbrainz_artistid__isnull=True,
+            name=name,
+            collection=self.collection)
+
     def artist(self, t, artist):
+        mb_artistid  = artist.musicbrainz_artistid
+        if mb_artistid and len(mb_artistid) == 1:
+            mb_artistid = mb_artistid[0]
+        else:
+            mb_artistid = None
+
         try:
-            a = models.Artist.objects.get(
-                name=self.unknown(artist.name),
-                collection=self.collection)
+            if mb_artistid:
+                try:
+                    a = self.get_artist_by_artistid(mb_artistid, artist.name)
+                except models.Artist.DoesNotExist:
+                    a = self.get_artist_by_name(artist.name)
+            else:
+                a = self.get_artist_by_name(artist.name)
+
         except models.Artist.DoesNotExist:
-            try:
-                if artist.musicbrainz_artistid:
-                    a = models.Artist.objects.get(
-                        musicbrainz_artistid=artist.musicbrainz_artistid,
-                        collection=self.collection)
-                else:
-                    raise models.Artist.DoesNotExist('No musicbrainz artistid')
+            # create a new artist..
+            a = models.Artist(collection=self.collection)
 
-            except models.Artist.DoesNotExist:
-                a = models.Artist(
-                    name=self.unknown(artist.name),
-                    sortname=artist.sortname or self.unknown(artist.name),
-                    musicbrainz_artistid=artist.musicbrainz_artistid,
-                    collection=self.collection)
-                a.save()
+        a.name = self.unknown(artist.name)
+        a.sortname = artist.sortname or self.unknown(artist.name)
+        a.musicbrainz_artistid = mb_artistid
+        a.save()
 
-        if artist.sortname and a.sortname != artist.sortname:
-            a.sortname = artist.sortname
-            a.save()
+        if mb_artistid:
+            a.artists.add(*list(
+                    models.Artist.objects.filter(
+                        musicbrainz_artistid=mb_artistid
+                    ).exclude(id=a.id)))
 
         a.genres.add(*self.genres(t.genres))
         return a
-
 
     def artists(self, t, _artists):
         for artist in _artists:
@@ -80,6 +96,12 @@ class Scan(object):
     def album(self, t):
         albumartist = self.artist(t, t.album.artist)
 
+        if len(t.album.artist.musicbrainz_artistid) > 1:
+            albumartist.artists.add(*list(
+                    models.Artist.objects.filter(
+                        musicbrainz_artistid__in=t.album.artist.musicbrainz_artistid
+                    )))
+
         try:
             _album = models.Album.objects.get(
                 title=t.album.title,
@@ -95,17 +117,17 @@ class Scan(object):
                 else:
                     raise models.Album.DoesNotExist('No musicbrainz albumid')
             except models.Album.DoesNotExist:
-                _album = models.Album(
-                    title=self.unknown(t.album.title),
-                    artist=albumartist,
-                    date=t.album.date,
-                    country=self.country(t.album.country),
-                    musicbrainz_albumid=t.album.musicbrainz_albumid,
-                    musicbrainz_releasegroupid=t.album.musicbrainz_releasegroupid,
-                    collection=self.collection)
-                _album.save()
+                _album = models.Album(collection=self.collection)
                 if settings.DOWNLOAD_COVER_ON_SCAN:
                     _album.download_cover(override=False, search_lastfm=True)
+
+        _album.title = self.unknown(t.album.title)
+        _album.artist = albumartist
+        _album.date = t.album.date
+        _album.country = self.country(t.album.country)
+        _album.musicbrainz_albumid = t.album.musicbrainz_albumid
+        _album.musicbrainz_releasegroupid = t.album.musicbrainz_releasegroupid
+        _album.save()
 
         #_album.artists.add(*self.artists(t, t.album.albumartists))
         _album.genres.add(*self.genres(t.genres))
@@ -141,4 +163,5 @@ class Scan(object):
                 track.musicbrainz_trackid = t.musicbrainz_trackid
                 track.path = path
                 track.save()
+                track.artists.clear()
                 track.artists.add(*list(self.artists(t, t.artists)))

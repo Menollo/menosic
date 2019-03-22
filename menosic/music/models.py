@@ -65,6 +65,7 @@ class Artist(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     path = models.CharField(max_length=255, db_index=True, null=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
+    artists = models.ManyToManyField('music.Artist')
 
     musicbrainz_artistid = models.UUIDField(null=True)
 
@@ -72,7 +73,7 @@ class Artist(models.Model):
         ordering = ['sortname']
         unique_together = (
             ('collection', 'path'),
-            ('collection', 'name'),
+            ('collection', 'name', 'musicbrainz_artistid'),
         )
 
     def __str__(self):
@@ -83,10 +84,15 @@ class Artist(models.Model):
         return reverse('music:artist_detail', args=[self.pk])
 
     def related_artists(self):
-        return Artist.objects.filter(track__artists=self).exclude(id=self.id).distinct()
+        return  Artist.objects.filter(track__artists=self).exclude(id=self.id).distinct() | \
+                Artist.objects.filter(artists__artist=self).exclude(id=self.id).distinct() | \
+                Artist.objects.filter(musicbrainz_artistid=self.musicbrainz_artistid, musicbrainz_artistid__isnull=False).exclude(id=self.id).distinct() | \
+                self.artists.all() | self.artist_set.all()
+
 
     def related_albums(self):
-        return Album.objects.filter(track__artists=self).exclude(artist=self).distinct()
+        return Album.objects.filter(track__artists=self).exclude(artist=self).distinct() | \
+               Album.objects.filter(artist__artists=self).exclude(artist=self).distinct()
 
 
 class AlbumType(models.Model):
@@ -114,8 +120,8 @@ class Album(models.Model):
     albumtypes = models.ManyToManyField(AlbumType)
     albumstatus = models.ManyToManyField(AlbumStatus)
 
-    musicbrainz_albumid = models.UUIDField(null=True)
-    musicbrainz_releasegroupid = models.UUIDField(null=True)
+    musicbrainz_albumid = models.UUIDField(primary_key=False, null=True)
+    musicbrainz_releasegroupid = models.UUIDField(primary_key=False, null=True)
 
     class Meta:
         ordering = ['date']
@@ -223,7 +229,7 @@ class Track(models.Model):
     path = models.CharField(max_length=255, db_index=True)
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
 
-    musicbrainz_trackid = models.UUIDField(null=True)
+    musicbrainz_trackid = models.UUIDField(primary_key=False, null=True)
 
     class Meta:
         ordering = ['discnumber', 'tracknumber']

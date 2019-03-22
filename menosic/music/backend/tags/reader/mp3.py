@@ -1,6 +1,12 @@
 from mutagenx.mp3 import MP3
 from music.backend.tags import reader
 
+def l(i):
+    if i:
+        item = reader.list_to_item(i.text)
+        if type(item) in (tuple, list):
+            item = item[0]
+        return item
 
 class Track(reader.Track):
     filetype = 'mp3'
@@ -19,20 +25,24 @@ class Track(reader.Track):
         self.genres = reader.item_to_list(self.mp3.get('TCON'))
 
         artist = reader.Artist()
-        artist.name = self.mp3.get('TPE1')
-        artist.sortname = self.mp3.get('TSOP')
-        #artist.musicbrainz_artistid = self.mp3.get('TXXX:MusicBrainz Artist Id')[0]
+        artist.name = l(self.mp3.get('TPE1'))
+        artist.sortname = l(self.mp3.get('TSOP'))
+        artist.musicbrainz_artistid = reader.item_to_list(self.mp3.get('TXXX:MusicBrainz Artist Id'))
         self.artist = artist
 
-        for a in self.mp3.get('TXXX:Artists', []):
+        for a, i in zip(
+                reader.item_to_list(self.mp3.get('TXXX:Artists')) or [],
+                reader.item_to_list(self.mp3.get('TXXX:MusicBrainz Artist Id')) or [],
+                ):
             artist = reader.Artist()
             artist.name = a
+            artist.musicbrainz_artistid = i
             self.artists.append(artist)
 
         album = reader.Album()
-        album.title = self.mp3.get('TALB')
-        album.date = self.mp3.get('TDOR') or self.mp3.get('TDRC')
-        album.country = self.mp3.get('TXXX:MusicBrainz Album Release Country')
+        album.title = l(self.mp3.get('TALB'))
+        album.date = l(self.mp3.get('TDOR') or self.mp3.get('TDRC'))
+        album.country = l(self.mp3.get('TXXX:MusicBrainz Album Release Country'))
         album.musicbrainz_albumid = str(self.mp3.get('TXXX:MusicBrainz Album Id'))
         album.musicbrainz_releasegroupid = str(self.mp3.get('TXXX:MusicBrainz Release Group Id'))
         album.labels = reader.item_to_list(self.mp3.get('TPUB'))
@@ -40,8 +50,9 @@ class Track(reader.Track):
         album.albumstatus = reader.item_to_list(self.mp3.get('TXXX:MusicBrainz Album Status'))
 
         albumartist = reader.Artist()
-        albumartist.name = self.mp3.get('TPE2')
-        albumartist.sortname = self.mp3.get('TSO2')
+        albumartist.name = l(self.mp3.get('TPE2'))
+        albumartist.sortname = l(self.mp3.get('TSO2'))
+        albumartist.musicbrainz_artistid = reader.item_to_list(self.mp3.get('TXXX:MusicBrainz Album Artist Id'))
         album.artist = albumartist
 
         self.album = album

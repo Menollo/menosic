@@ -63,9 +63,17 @@ class Artist(object):
 
 # Helper functions
 
-list_to_item = lambda l: None if not l else l[0]
+def list_to_item(l):
+    if not l:
+        return None
+    if len(l) == 1:
+        return l[0]
+    else:
+        raise ValueError("List contains more than one items")
+
 item_to_list = lambda i: [] if not i else str(i).split('\x00')
 data = lambda d: None if not d else d.data.decode('utf-8')
+value = lambda d: None if not d else d.value.decode('utf-8')
 
 
 def number(string):
