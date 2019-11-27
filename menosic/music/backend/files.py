@@ -25,7 +25,7 @@ class DirItem(object):
 
     @property
     def encoded_path(self):
-        return urlsafe_base64_encode(self.path.encode('utf-8', 'ignore')).decode('utf-8')
+        return urlsafe_base64_encode(self.path.encode('utf-8', 'ignore'))
 
 
 class FileItem(object):
@@ -66,7 +66,7 @@ class FileItem(object):
 
     @property
     def encoded_path(self):
-        return urlsafe_base64_encode(self.path.encode('utf-8', 'ignore')).decode('utf-8')
+        return urlsafe_base64_encode(self.path.encode('utf-8', 'ignore'))
 
     def __getattr__(self, name):
         attribute = getattr(self.tag, name)
@@ -122,7 +122,7 @@ def artists_tuple(collection):
                 item = item.encode('utf-8', 'ignore')
 
                 #make url
-                path = urlsafe_base64_encode(item).decode('utf-8')
+                path = urlsafe_base64_encode(item)
 
                 name = item.decode('utf-8')
                 yield {
