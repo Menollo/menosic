@@ -6,7 +6,7 @@ import views
 
 
 app = tornado.web.Application([
-    (r'/', views.TestWebSocket),
+    (r'/', views.WebSocketServer),
 ])
 
 if __name__ == '__main__':

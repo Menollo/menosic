@@ -22,7 +22,7 @@ class Client(object):
         return [self.user, ]
 
 
-class TestWebSocket(tornado.websocket.WebSocketHandler):
+class WebSocketServer(tornado.websocket.WebSocketHandler):
     clients = {}
 
     def check_origin(self, origin):
