@@ -1,0 +1,7 @@
+{
+  "domain": "menosic",
+  "name": "Menosic",
+  "documentation": "https://github.com/Menollo/menosic/",
+  "requirements": ["websocket-client"],
+  "codeowners": ["@Menollo"]
+}
