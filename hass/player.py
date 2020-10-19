@@ -94,7 +94,10 @@ class Player(object):
         self.song_change()
 
     def pause(self):
-        self.play()
+        data = {
+            'entity_id': self.device,
+        }
+        self.hass.services.call('media_player', 'media_play_pause', data)
 
     def next(self):
         if self.playlist.next():
