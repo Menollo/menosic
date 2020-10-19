@@ -1,7 +1,4 @@
 import tornado
-import sys
-import os
-
 import views
 
 
