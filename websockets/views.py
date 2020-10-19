@@ -5,9 +5,11 @@ import json
 class Client(object):
     name = 'Unknown'
     key = None
-    player = None
     playlist = None
     _user = None
+
+    def __init__(self):
+        self.players = []
 
     @property
     def user(self):
@@ -52,7 +54,7 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
     def register(self, data):
         self.clients[self].key = data['key']
         self.clients[self].name = data['name']
-        self.clients[self].player = data['player']
+        self.clients[self].players.append(data['player'])
         self.clients[self].playlist = int(data['playlist'])
 
         user = self.clients[self].user
@@ -67,9 +69,18 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
             if user in client.allowed_users:
                 clients.append(client)
 
+        players = []
+        for client in clients:
+            for player in client.players:
+                players.append({
+                        'player': player,
+                        'name': client.name,
+                        'user': client.user
+                    })
+
         response = {
                 'action': 'players',
-                'players': [{'player': c.player, 'name': c.name, 'user': c.user} for c in clients]
+                'players': players,
             }
         obj.write_message(json.dumps(response))
 
@@ -99,7 +110,7 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
 
     def play_song(self, data):
         for obj, client in self.clients.items():
-            if client.player == data['player']:
+            if data['player'] in client.players:
                 response = {
                         'action': data['action'],
                         'player': data['player'],
@@ -110,7 +121,7 @@ class TestWebSocket(tornado.websocket.WebSocketHandler):
 
     def _player_action(self, data):
         for obj, client in self.clients.items():
-            if client.player == data['player']:
+            if data['player'] in client.players:
                 response = {'action': data['action'], 'player': data['player']}
                 obj.write_message(json.dumps(response))
 
