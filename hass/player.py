@@ -1,4 +1,5 @@
 import json
+import time
 from collections import OrderedDict
 
 try:
@@ -45,6 +46,7 @@ class Playlist(object):
 
 class Player(object):
     playlist = None
+    playing = False
 
     def __init__(self, hass, config, device, song_change_callback):
         self.hass = hass
@@ -63,11 +65,14 @@ class Player(object):
 
     def hass_event(self, event):
         if (
+                self.playing and
                 event.data['entity_id'] == self.device and
+                event.data['new_state'].state == 'idle' and
                 event.data['old_state'].state == 'playing' and
-                event.data['new_state'].state == 'idle'):
-            if self.playlist.next():
-                self.play()
+                event.data['old_state'].attributes['media_content_id'].startswith(self.config['server'])
+                ):
+            print('next')
+            self.next()
 
     def update_playlist(self):
         current_id = self.playlist.current['id'] if self.playlist else None
@@ -77,6 +82,7 @@ class Player(object):
             self.playlist = Playlist(self.config['server'], data['playlist'], current_id)
 
     def play_song(self, id):
+        self.playing = False
         self.playlist.goto_track(id)
         self.play()
 
@@ -93,7 +99,18 @@ class Player(object):
         self.hass.services.call('media_player', 'play_media', data)
         self.song_change()
 
+        time.sleep(1)
+        self.playing = True
+
+    def stop(self):
+        self.playing = False
+        data = {
+            'entity_id': self.device,
+        }
+        self.hass.services.call('media_player', 'media_stop', data, True)
+
     def pause(self):
+        self.playing = not self.playing
         data = {
             'entity_id': self.device,
         }
@@ -102,6 +119,8 @@ class Player(object):
     def next(self):
         if self.playlist.next():
             self.play()
+        else:
+            self.stop()
 
     def song_change(self):
         self.song_change_callback(self.device, self.playlist.current['id'])

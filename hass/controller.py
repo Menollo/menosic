@@ -77,11 +77,18 @@ class Controller(object):
         elif data['action'] == 'pause':
             player.pause()
         elif data['action'] == 'update_playlist':
-            player.update_playlist()
+            if player:
+                player.update_playlist()
+            else:
+                for player in self.players.values():
+                    if player.config['playlist_id'] == data['playlist']:
+                        player.update_playlist()
         elif data['action'] == 'next':
             player.next()
         elif data['action'] == 'play_song':
             player.play_song(data['identifier'])
+        elif data['action'] == 'stop':
+            player.stop()
 
     def on_error(self, error):
         print(error)
