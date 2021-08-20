@@ -18,11 +18,11 @@ class WebsocketPlayerControl(object):
         self.player_id = ''.join(random.choice(rand_chars) for _ in range(10))
         self.player = player
         self.ws = websocket.WebSocketApp(server,
+                                         on_open=self.on_open,
                                          on_message=self.on_message,
                                          on_error=self.on_error)
 
         player.song_change_callback = self.song_change
-        self.ws.on_open = self.on_open
 
     def song_change(self, identifier):
         data = {
@@ -46,7 +46,7 @@ class WebsocketPlayerControl(object):
         self.ws.send("client disconnect")
         self.ws.close()
 
-    def on_open(self):
+    def on_open(self, ws):
         try:
             name = settings.CLIENT_NAME
         except AttributeError:
@@ -59,9 +59,9 @@ class WebsocketPlayerControl(object):
             'playlist': settings.PLAYLIST_ID,
             'name': name
             }
-        self.ws.send(json.dumps(data))
+        ws.send(json.dumps(data))
 
-    def on_message(self, message):
+    def on_message(self, ws, message):
         if settings.DEBUG:
             print('message received:', message)
         data = json.loads(message)
@@ -77,7 +77,7 @@ class WebsocketPlayerControl(object):
         elif data['action'] == 'play_song':
             self.player.play_song(data['identifier'])
 
-    def on_error(self, error):
+    def on_error(self, ws, error):
         print(error)
 
 

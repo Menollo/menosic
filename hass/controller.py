@@ -18,10 +18,9 @@ class Controller(object):
         self.players = {}
 
         self.ws = websocket.WebSocketApp(config.get('ws_server'),
+                                         on_open=self.on_open,
                                          on_message=self.on_message,
                                          on_error=self.on_error)
-
-        self.ws.on_open = self.on_open
 
     def song_change(self, device, identifier):
         data = {
@@ -33,7 +32,7 @@ class Controller(object):
             }
         self.ws.send(json.dumps(data))
 
-    def init_players(self):
+    def init_players(self, ws):
         devices = self.hass.states.entity_ids('media_player')
         for device in devices:
             self.players[device] = Player(
@@ -50,7 +49,7 @@ class Controller(object):
                 'playlist': self.player_config['playlist_id'],
                 'name': 'Home Assistant',
                 }
-            self.ws.send(json.dumps(data))
+            ws.send(json.dumps(data))
 
     def start(self):
         while True:
@@ -62,13 +61,13 @@ class Controller(object):
         self.ws.send("client disconnect")
         self.ws.close()
 
-    def on_open(self):
+    def on_open(self, ws):
         # wait until hass has loaded all entities
         # TODO: this can be done better without a sleep.
         time.sleep(3)
-        self.init_players()
+        self.init_players(ws)
 
-    def on_message(self, message):
+    def on_message(self, ws, message):
         data = json.loads(message)
         player = self.players.get(data.get('player'))
 
@@ -90,5 +89,5 @@ class Controller(object):
         elif data['action'] == 'stop':
             player.stop()
 
-    def on_error(self, error):
+    def on_error(self, ws, error):
         print(error)
