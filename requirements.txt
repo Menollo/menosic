@@ -1,4 +1,4 @@
 mutagen
-django>1.9
+django<5
 pillow
 tornado

@@ -1,5 +1,6 @@
 import os
-from django.utils.http import urlsafe_base64_encode, urlquote
+import urllib.parse
+from django.utils.http import urlsafe_base64_encode
 from music.backend.tags import reader
 
 
@@ -49,7 +50,7 @@ class FileItem(object):
 
     @property
     def sendfile_location(self):
-        return urlquote("%s%s" % (self.collection.sendfile_location, self.relative_path))
+        return urllib.parse.quote("%s%s" % (self.collection.sendfile_location, self.relative_path), safe='/')
 
 
     @property

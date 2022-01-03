@@ -1,11 +1,11 @@
-from django.conf.urls import include, url
+from django.urls import include, path
 
 from django.contrib import admin
 
 app_name = 'menosic'
 urlpatterns = [
-    url(r'^', include('music.urls', namespace='music')),
+    path('', include('music.urls', namespace='music')),
 
-    url(r'^admin/', admin.site.urls),
-    url(r'^accounts/', include('django.contrib.auth.urls')),
+    path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
