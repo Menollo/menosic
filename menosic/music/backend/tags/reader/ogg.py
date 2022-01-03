@@ -1,4 +1,4 @@
-from mutagenx.oggvorbis import OggVorbis
+from mutagen.oggvorbis import OggVorbis
 from music.backend.tags import reader
 
 

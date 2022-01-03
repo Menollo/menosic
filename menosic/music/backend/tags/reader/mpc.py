@@ -1,4 +1,4 @@
-from mutagenx.musepack import Musepack
+from mutagen.musepack import Musepack
 from music.backend.tags import reader
 
 

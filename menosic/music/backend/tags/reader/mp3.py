@@ -1,4 +1,4 @@
-from mutagenx.mp3 import MP3
+from mutagen.mp3 import MP3
 from music.backend.tags import reader
 
 def l(i):

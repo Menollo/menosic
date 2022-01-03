@@ -1,4 +1,4 @@
-from mutagenx.flac import FLAC
+from mutagen.flac import FLAC
 from music.backend.tags import reader
 
 

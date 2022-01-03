@@ -1,4 +1,4 @@
-from mutagenx.monkeysaudio import MonkeysAudio
+from mutagen.monkeysaudio import MonkeysAudio
 from music.backend.tags import reader
 
 

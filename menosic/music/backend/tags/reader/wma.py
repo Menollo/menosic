@@ -1,4 +1,4 @@
-from mutagenx.asf import ASF
+from mutagen.asf import ASF
 from music.backend.tags import reader
 
 
