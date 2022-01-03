@@ -86,7 +86,7 @@ class Artist(models.Model):
         return  Artist.objects.filter(track__artists=self).exclude(id=self.id).distinct() | \
                 Artist.objects.filter(artists__artist=self).exclude(id=self.id).distinct() | \
                 Artist.objects.filter(musicbrainz_artistid=self.musicbrainz_artistid, musicbrainz_artistid__isnull=False).exclude(id=self.id).distinct() | \
-                self.artists.all() | self.artist_set.all()
+                self.artists.distinct() | self.artist_set.distinct()
 
 
     def related_albums(self):
